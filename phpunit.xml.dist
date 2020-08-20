@@ -6,10 +6,12 @@
          backupGlobals="false"
          colors="true"
 >
+    <php>
+        <env name="BASIC_OUTCOME_TEMPLATES_PATH" value="templates" />
+        <env name="TEST_RESPONSE_TEMPLATES_PATH" value="tests/Resources/Templates/Response" />
+    </php>
+
     <testsuites>
-        <testsuite name="Integration">
-            <directory>tests/Integration</directory>
-        </testsuite>
         <testsuite name="Unit">
             <directory>tests/Unit</directory>
         </testsuite>

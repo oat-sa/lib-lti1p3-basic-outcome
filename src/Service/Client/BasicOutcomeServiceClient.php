@@ -72,16 +72,19 @@ class BasicOutcomeServiceClient
         BasicOutcomeClaim $basicOutcomeClaim
     ): BasicOutcomeResultInterface {
         try {
-            $xml = $this->twig->render('basic-outcome/read-result.xml.twig', [
-                'messageIdentifier' => $this->messageIdentifierGenerator->generate(),
-                'lisResultSourcedId' => $basicOutcomeClaim->getLisResultSourcedId()
-            ]);
+            $xml = $this->twig->render(
+                'basic-outcome/read-result.xml.twig',
+                [
+                    'messageIdentifier' => $this->messageIdentifierGenerator->generate(),
+                    'lisResultSourcedId' => $basicOutcomeClaim->getLisResultSourcedId()
+                ]
+            );
 
             return $this->sendBasicOutcome($registration, $basicOutcomeClaim, $xml);
 
         } catch (Throwable $exception) {
             throw new LtiException(
-                sprintf('Cannot read result: %s', $exception->getMessage()),
+                sprintf('Read result error: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );
@@ -103,18 +106,21 @@ class BasicOutcomeServiceClient
                 throw new InvalidArgumentException('Score must be decimal numeric value in the range 0.0 - 1.0');
             }
 
-            $xml = $this->twig->render('basic-outcome/replace-result.xml.twig', [
-                'messageIdentifier' => $this->messageIdentifierGenerator->generate(),
-                'lisResultSourcedId' => $basicOutcomeClaim->getLisResultSourcedId(),
-                'score' => $score,
-                'language' => $language
-            ]);
+            $xml = $this->twig->render(
+                'basic-outcome/replace-result.xml.twig',
+                [
+                    'messageIdentifier' => $this->messageIdentifierGenerator->generate(),
+                    'lisResultSourcedId' => $basicOutcomeClaim->getLisResultSourcedId(),
+                    'score' => $score,
+                    'language' => $language
+                ]
+            );
 
             return $this->sendBasicOutcome($registration, $basicOutcomeClaim, $xml);
 
         } catch (Throwable $exception) {
             throw new LtiException(
-                sprintf('Cannot replace result: %s', $exception->getMessage()),
+                sprintf('Replace result error: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );
@@ -130,16 +136,19 @@ class BasicOutcomeServiceClient
         BasicOutcomeClaim $basicOutcomeClaim
     ): BasicOutcomeResultInterface {
         try {
-            $xml = $this->twig->render('basic-outcome/delete-result.xml.twig', [
-                'messageIdentifier' => $this->messageIdentifierGenerator->generate(),
-                'lisResultSourcedId' => $basicOutcomeClaim->getLisResultSourcedId()
-            ]);
+            $xml = $this->twig->render(
+                'basic-outcome/delete-result.xml.twig',
+                [
+                    'messageIdentifier' => $this->messageIdentifierGenerator->generate(),
+                    'lisResultSourcedId' => $basicOutcomeClaim->getLisResultSourcedId()
+                ]
+            );
 
             return $this->sendBasicOutcome($registration, $basicOutcomeClaim, $xml);
 
         } catch (Throwable $exception) {
             throw new LtiException(
-                sprintf('Cannot delete result: %s', $exception->getMessage()),
+                sprintf('Delete result error: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );

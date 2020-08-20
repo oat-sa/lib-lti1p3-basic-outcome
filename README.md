@@ -1,4 +1,4 @@
-# LTI 1.3 NRPS Library
+# LTI 1.3 Basic Outcome Library
 
 > PHP library for [LTI 1.3 Names and Role Provisioning Services](https://www.imsglobal.org/spec/lti-nrps/v2p0) implementations as platforms and / or as tools.
 
