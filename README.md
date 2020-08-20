@@ -9,17 +9,17 @@
 - [Usage](#usage)
 - [Tests](#tests)
 
-## Installation
-
-```console
-$ composer require oat-sa/lib-lti1p3-basic-outcome
-```
-
 ## Specifications
 
 - [LTI 1.3 Basic Outcome Service Integration](https://www.imsglobal.org/spec/lti-bo/v1p1#integration-with-lti-1-3)
 - [IMS LTI 1.3 Core](http://www.imsglobal.org/spec/lti/v1p3)
 - [IMS Security](https://www.imsglobal.org/spec/security/v1p0)
+
+## Installation
+
+```console
+$ composer require oat-sa/lib-lti1p3-basic-outcome
+```
 
 ## Usage
 
