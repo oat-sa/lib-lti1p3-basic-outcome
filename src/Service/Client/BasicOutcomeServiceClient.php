@@ -25,7 +25,8 @@ namespace OAT\Library\Lti1p3BasicOutcome\Service\Client;
 use InvalidArgumentException;
 use OAT\Library\Lti1p3BasicOutcome\Generator\MessageIdentifierGenerator;
 use OAT\Library\Lti1p3BasicOutcome\Generator\MessageIdentifierGeneratorInterface;
-use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResult;
+use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultFactory;
+use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultFactoryInterface;
 use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Message\Claim\BasicOutcomeClaim;
@@ -53,14 +54,19 @@ class BasicOutcomeServiceClient
     /** @var MessageIdentifierGeneratorInterface */
     private $messageIdentifierGenerator;
 
+    /** @var BasicOutcomeResultFactoryInterface */
+    private $basicOutcomeResultFactory;
+
     public function __construct(
         ServiceClientInterface $client = null,
         Environment $twig = null,
-        MessageIdentifierGeneratorInterface $messageIdentifierGenerator = null
+        MessageIdentifierGeneratorInterface $messageIdentifierGenerator = null,
+        BasicOutcomeResultFactoryInterface $basicOutcomeResultFactory = null
     ) {
         $this->client = $client ?? new ServiceClient();
         $this->twig = $twig ?? new Environment(new FilesystemLoader(__DIR__ . '/../../../templates'));
         $this->messageIdentifierGenerator = $messageIdentifierGenerator ?? new MessageIdentifierGenerator();
+        $this->basicOutcomeResultFactory = $basicOutcomeResultFactory ?? new BasicOutcomeResultFactory();
     }
 
     /**
@@ -180,7 +186,7 @@ class BasicOutcomeServiceClient
                 ]
             );
 
-            return new BasicOutcomeResult($response->getBody()->__toString());
+            return $this->basicOutcomeResultFactory->create($response->getBody()->__toString());
 
         } catch (Throwable $exception) {
             throw new LtiException(

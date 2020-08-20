@@ -20,29 +20,29 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Result;
+namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Result;
 
-use Symfony\Component\DomCrawler\Crawler;
+use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultFactory;
+use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
+use OAT\Library\Lti1p3BasicOutcome\Tests\Traits\TwigTestingTrait;
+use PHPUnit\Framework\TestCase;
 
-class BasicOutcomeResult implements BasicOutcomeResultInterface
+class BasicOutcomeResultFactoryTest extends TestCase
 {
-    /** @var Crawler */
-    private $crawler;
+    use TwigTestingTrait;
 
-    public function __construct(string $xml)
+    protected function setUp(): void
     {
-        $this->crawler = new Crawler($xml);
+        $this->setUpTwig();
     }
 
-    public function isSuccess(): bool
+    public function testCreate(): void
     {
-        return $this->crawler
-            ->filterXPath('//imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_statusInfo/imsx_codeMajor')
-            ->text('failure') === 'success';
-    }
+        $subject = new BasicOutcomeResultFactory();
 
-    public function getCrawler(): Crawler
-    {
-        return $this->crawler;
+        $result = $subject->create($this->twig->render('replace-result-response.xml.twig'));
+
+        $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
+        $this->assertTrue($result->isSuccess());
     }
 }

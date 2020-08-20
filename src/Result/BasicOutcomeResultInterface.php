@@ -24,9 +24,6 @@ namespace OAT\Library\Lti1p3BasicOutcome\Result;
 
 use Symfony\Component\DomCrawler\Crawler;
 
-/**
- * @see https://www.imsglobal.org/spec/lti-bo/v1p1#basic-outcome-service
- */
 interface BasicOutcomeResultInterface
 {
     public function isSuccess(): bool;
