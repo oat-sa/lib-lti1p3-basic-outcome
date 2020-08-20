@@ -1,42 +1,67 @@
 # LTI 1.3 Basic Outcome Library
 
-> PHP library for [LTI 1.3 Names and Role Provisioning Services](https://www.imsglobal.org/spec/lti-nrps/v2p0) implementations as platforms and / or as tools.
+> PHP library for [LTI 1.3 Basic Outcome](https://www.imsglobal.org/spec/lti-bo/v1p1) implementations as tool, based on [lti1p3-core library](https://github.com/oat-sa/lib-lti1p3-core).
 
 # Table of contents
 
 - [Specifications](#specifications)
 - [Installation](#installation)
-- [Concepts](#concepts)
+- [Usage](#usage)
 - [Tests](#tests)
 
 ## Installation
 
 ```console
-$ composer require oat-sa/lib-lti1p3-nrps
+$ composer require oat-sa/lib-lti1p3-basic-outcome
 ```
 
 ## Specifications
 
-- [LTI 1.3 Names and Role Provisioning Services](https://www.imsglobal.org/spec/lti-nrps/v2p0)
+- [LTI 1.3 Basic Outcome Service Integration](https://www.imsglobal.org/spec/lti-bo/v1p1#integration-with-lti-1-3)
+- [IMS LTI 1.3 Core](http://www.imsglobal.org/spec/lti/v1p3)
 - [IMS Security](https://www.imsglobal.org/spec/security/v1p0)
 
-## Concepts
+## Usage
 
-You can find below the implementations of the main concepts of the [LTI Assignment and Grade Services](https://www.imsglobal.org/spec/lti-ags/v2p0) specification.
+This library offers a [BasicOutcomeServiceClient](src/Service/Client/BasicOutcomeServiceClient.php), ready to be used to send basic outcomes to a registered platform, following [LTI 1.3 services security specifications](https://www.imsglobal.org/spec/security/v1p0/#securing_web_services).
 
-###  Models
+Supported outcomes operations:
+- [read result](https://www.imsglobal.org/spec/lti-bo/v1p1#readresult)
+- [replace result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult)
+- [delete result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult)
 
-- [LineItem](src/Model/LineItem.php)
-- [Score](src/Model/Score.php)
+Example for `replaceResult()` operation:
+```php
+<?php
 
-### Service
+use OAT\Library\Lti1p3BasicOutcome\Service\Client\BasicOutcomeServiceCLient;
+use OAT\Library\Lti1p3Core\Message\Claim\BasicOutcomeClaim;
+use OAT\Library\Lti1p3Core\Registration\RegistrationRepositoryInterface;
 
-#### Tool
+// Build basic outcome claim (or get it from the previous LTI launch)
+/** @var BasicOutcomeClaim $claim */
+$claim = new BasicOutcomeClaim(...);
 
-##### ScoreServiceClient
-- Code: [ScoreServiceClient](src/Service/Client/ScoreServiceClient.php)
-- Documentation: [Score publish service documentation ](https://www.imsglobal.org/spec/lti-ags/v2p0#score-publish-service)
-- Openapi POST score contract: [openapi](https://www.imsglobal.org/spec/lti-ags/v2p0/openapi/#/default/Scores.POST)
+// Get related registration of the outcome
+/** @var RegistrationRepositoryInterface $registrationRepository */
+$registration = $registrationRepository->find(...);
+
+$client = new BasicOutcomeServiceCLient();
+
+$result = $client->replaceResult(
+    $registration,  // will use the access token endpoint of this registration's platform
+    $claim,         // will send the outcome to the claim outcome service url
+    0.7,            // score to replace (float between 0 and 1)
+    'fr'            // optional language (default='en')
+);
+
+if ($result->isSuccess()) {
+    $result->getCrawler()->filterXPath(...); // crawl outcome response
+}
+```
+
+**Note**: the shortcut methods (`readResult`, `replaceResult` and `deleteResult`) use [twig templates](templates) to generate the outcome request body.
+You can provide your own request body by using the `sendBasicOutcome()` method directly.
 
 ## Tests
 
