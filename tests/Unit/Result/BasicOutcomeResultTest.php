@@ -23,47 +23,25 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Result;
 
 use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResult;
-use OAT\Library\Lti1p3BasicOutcome\Tests\Traits\TwigTestingTrait;
 use PHPUnit\Framework\TestCase;
 
 class BasicOutcomeResultTest extends TestCase
 {
-    use TwigTestingTrait;
-
-    protected function setUp(): void
+    public function testIsSuccess(): void
     {
-        $this->setUpTwig();
-    }
-
-    public function testIsNotINSuccessWithInvalidResponse(): void
-    {
-        $subject = new BasicOutcomeResult('invalid');
-
-        $this->assertFalse($subject->isSuccess());
-    }
-
-    public function testIsNotInSuccessWithFailureResponse(): void
-    {
-        $subject = new BasicOutcomeResult($this->twig->render('replace-result-response.xml.twig', [
-            'status' => 'failure'
-        ]));
-
-        $this->assertFalse($subject->isSuccess());
-    }
-
-    public function testIsInSuccessWithSuccessResponse(): void
-    {
-        $subject = new BasicOutcomeResult($this->twig->render('replace-result-response.xml.twig'));
+        $subject = new BasicOutcomeResult(true, '');
 
         $this->assertTrue($subject->isSuccess());
+
+        $subject = new BasicOutcomeResult(false, '');
+
+        $this->assertFalse($subject->isSuccess());
     }
 
-    public function testResultCrawling(): void
+    public function testGetContent(): void
     {
-        $subject = new BasicOutcomeResult($this->twig->render('replace-result-response.xml.twig'));
+        $subject = new BasicOutcomeResult(true, 'content');
 
-        $path = '//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier';
-
-        $this->assertEquals('789', $subject->getCrawler()->filterXPath($path)->text());
+        $this->assertEquals('content', $subject->getContent());
     }
 }

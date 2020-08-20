@@ -20,34 +20,38 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Result;
+namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Factory;
 
+use OAT\Library\Lti1p3BasicOutcome\Factory\BasicOutcomeResultCrawlerFactory;
 use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultFactory;
-use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
+use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultFactoryInterface;
 use OAT\Library\Lti1p3BasicOutcome\Tests\Traits\TwigTestingTrait;
 use PHPUnit\Framework\TestCase;
 
-class BasicOutcomeResultFactoryTest extends TestCase
+class BasicOutcomeResultCrawlerFactoryTest extends TestCase
 {
     use TwigTestingTrait;
+
+    /** @var BasicOutcomeResultFactoryInterface */
+    private $factory;
 
     protected function setUp(): void
     {
         $this->setUpTwig();
+
+        $this->factory = new BasicOutcomeResultFactory();
     }
-
-    public function testCreate(): void
+    public function testCrawling(): void
     {
-        $subject = new BasicOutcomeResultFactory();
+        $subject = new BasicOutcomeResultCrawlerFactory();
 
-        $result = $subject->create($this->twig->render('replace-result-response.xml.twig'));
-        $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
-        $this->assertTrue($result->isSuccess());
+        $crawler = $subject->create(
+            $this->factory->create($this->twig->render('replace-result-response.xml.twig'))
+        );
 
-        $result = $subject->create($this->twig->render('replace-result-response.xml.twig', [
-            'status' => 'failure'
-        ]));
-        $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
-        $this->assertFalse($result->isSuccess());
+        $this->assertEquals(
+            '789',
+            $crawler->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
+        );
     }
 }

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Service\Client;
 
+use OAT\Library\Lti1p3BasicOutcome\Factory\BasicOutcomeResultCrawlerFactory;
 use OAT\Library\Lti1p3BasicOutcome\Generator\MessageIdentifierGeneratorInterface;
 use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
 use OAT\Library\Lti1p3BasicOutcome\Service\Client\BasicOutcomeServiceClient;
@@ -55,6 +56,9 @@ class MessageIdentifierGeneratorTest extends TestCase
     /** @var BasicOutcomeClaim */
     private $basicOutcomeClaim;
 
+    /** @var BasicOutcomeResultCrawlerFactory */
+    private $crawlerFactory;
+
     /** @var BasicOutcomeServiceClient */
     private $subject;
 
@@ -64,6 +68,7 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->registration = $this->createTestRegistration();
         $this->basicOutcomeClaim = new BasicOutcomeClaim(self::TEST_SOURCED_ID, self::TEST_OUTCOME_URL);
+        $this->crawlerFactory = new BasicOutcomeResultCrawlerFactory();
 
         $messageIdentifierGeneratorMock = $this->createMock(MessageIdentifierGeneratorInterface::class);
         $messageIdentifierGeneratorMock
@@ -97,9 +102,11 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
         $this->assertTrue($result->isSuccess());
+
+        $crawler = $this->crawlerFactory->create($result);
         $this->assertEquals(
             '789',
-            $result->getCrawler()->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
+            $crawler->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
         );
     }
 
@@ -143,9 +150,11 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
         $this->assertTrue($result->isSuccess());
+
+        $crawler = $this->crawlerFactory->create($result);
         $this->assertEquals(
             '789',
-            $result->getCrawler()->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
+            $crawler->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
         );
     }
 
@@ -195,9 +204,11 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
         $this->assertTrue($result->isSuccess());
+
+        $crawler = $this->crawlerFactory->create($result);
         $this->assertEquals(
             '789',
-            $result->getCrawler()->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
+            $crawler->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
         );
     }
 

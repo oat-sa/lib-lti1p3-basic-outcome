@@ -20,9 +20,15 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Result;
+namespace OAT\Library\Lti1p3BasicOutcome\Factory;
 
-interface BasicOutcomeResultFactoryInterface
+use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
+use Symfony\Component\DomCrawler\Crawler;
+
+class BasicOutcomeResultCrawlerFactory extends Crawler
 {
-    public function create(string $content): BasicOutcomeResultInterface;
+    public function create(BasicOutcomeResultInterface $basicOutcomeResult): Crawler
+    {
+        return new Crawler($basicOutcomeResult->getContent());
+    }
 }

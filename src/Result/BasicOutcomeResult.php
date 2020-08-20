@@ -22,27 +22,27 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3BasicOutcome\Result;
 
-use Symfony\Component\DomCrawler\Crawler;
-
 class BasicOutcomeResult implements BasicOutcomeResultInterface
 {
-    /** @var Crawler */
-    private $crawler;
+    /** @var bool */
+    private $isSuccess;
 
-    public function __construct(string $xml)
+    /** @var string */
+    private $content;
+
+    public function __construct(bool $isSuccess, string $content)
     {
-        $this->crawler = new Crawler($xml);
+        $this->isSuccess = $isSuccess;
+        $this->content = $content;
     }
 
     public function isSuccess(): bool
     {
-        return $this->crawler
-            ->filterXPath('//imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_statusInfo/imsx_codeMajor')
-            ->text('failure') === 'success';
+        return $this->isSuccess;
     }
 
-    public function getCrawler(): Crawler
+    public function getContent(): string
     {
-        return $this->crawler;
+        return $this->content;
     }
 }

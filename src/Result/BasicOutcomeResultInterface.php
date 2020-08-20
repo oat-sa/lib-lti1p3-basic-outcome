@@ -22,11 +22,9 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3BasicOutcome\Result;
 
-use Symfony\Component\DomCrawler\Crawler;
-
 interface BasicOutcomeResultInterface
 {
     public function isSuccess(): bool;
 
-    public function getCrawler(): Crawler;
+    public function getContent(): string;
 }

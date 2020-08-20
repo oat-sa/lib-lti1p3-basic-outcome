@@ -34,9 +34,11 @@ Usage example with the `replaceResult()` operation:
 ```php
 <?php
 
+use OAT\Library\Lti1p3BasicOutcome\Factory\BasicOutcomeResultCrawlerFactory;
 use OAT\Library\Lti1p3BasicOutcome\Service\Client\BasicOutcomeServiceCLient;
 use OAT\Library\Lti1p3Core\Message\Claim\BasicOutcomeClaim;
 use OAT\Library\Lti1p3Core\Registration\RegistrationRepositoryInterface;
+
 
 // Build basic outcome claim (or get it from the previous LTI launch)
 /** @var BasicOutcomeClaim $claim */
@@ -56,7 +58,12 @@ $result = $client->replaceResult(
 );
 
 if ($result->isSuccess()) {
-    $result->getCrawler()->filterXPath(...); // crawl outcome response
+    // you can work directly on the outcome response content
+    $content = $result->getContent();
+  
+    // or use a prepared crawler to ease response processing
+    $crawler = (new BasicOutcomeResultCrawlerFactory())->create($result);
+    $crawler->filterXPath(...); // crawl outcome response
 }
 ```
 
