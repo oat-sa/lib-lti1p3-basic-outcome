@@ -30,7 +30,7 @@ Supported outcomes operations:
 - [replace result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult)
 - [delete result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult)
 
-Example for `replaceResult()` operation:
+Usage example with the `replaceResult()` operation:
 ```php
 <?php
 
