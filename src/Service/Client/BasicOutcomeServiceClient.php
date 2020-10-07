@@ -28,8 +28,10 @@ use OAT\Library\Lti1p3BasicOutcome\Generator\MessageIdentifierGeneratorInterface
 use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultFactory;
 use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultFactoryInterface;
 use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
+use OAT\Library\Lti1p3BasicOutcome\Service\BasicOutcomeServiceInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
-use OAT\Library\Lti1p3Core\Message\Claim\BasicOutcomeClaim;
+use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
@@ -40,11 +42,8 @@ use Twig\Loader\FilesystemLoader;
 /**
  * @see https://www.imsglobal.org/spec/lti-bo/v1p1#integration-with-lti-1-3
  */
-class BasicOutcomeServiceClient
+class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
 {
-    public const AUTHORIZATION_SCOPE_BASIC_OUTCOME = 'https://purl.imsglobal.org/spec/lti-bo/scope/basicoutcome';
-    public const CONTENT_TYPE_BASIC_OUTCOME = 'application/vnd.ims.lti.v1.outcome+xml';
-
     /** @var ServiceClientInterface */
     private $client;
 
@@ -52,41 +51,72 @@ class BasicOutcomeServiceClient
     private $twig;
 
     /** @var MessageIdentifierGeneratorInterface */
-    private $messageIdentifierGenerator;
+    private $generator;
 
     /** @var BasicOutcomeResultFactoryInterface */
-    private $basicOutcomeResultFactory;
+    private $factory;
 
     public function __construct(
         ServiceClientInterface $client = null,
         Environment $twig = null,
-        MessageIdentifierGeneratorInterface $messageIdentifierGenerator = null,
-        BasicOutcomeResultFactoryInterface $basicOutcomeResultFactory = null
+        MessageIdentifierGeneratorInterface $generator = null,
+        BasicOutcomeResultFactoryInterface $factory = null
     ) {
         $this->client = $client ?? new ServiceClient();
         $this->twig = $twig ?? new Environment(new FilesystemLoader(__DIR__ . '/../../../templates'));
-        $this->messageIdentifierGenerator = $messageIdentifierGenerator ?? new MessageIdentifierGenerator();
-        $this->basicOutcomeResultFactory = $basicOutcomeResultFactory ?? new BasicOutcomeResultFactory();
+        $this->generator = $generator ?? new MessageIdentifierGenerator();
+        $this->factory = $factory ?? new BasicOutcomeResultFactory();
     }
 
     /**
      * @see https://www.imsglobal.org/spec/lti-bo/v1p1#readresult
-     * @throws LtiException
+     * @throws LtiExceptionInterface
+     */
+    public function readResultFromPayload(
+        RegistrationInterface $registration,
+        LtiMessagePayloadInterface $payload
+    ): BasicOutcomeResultInterface {
+        try {
+            if (null === $payload->getBasicOutcome()) {
+                throw new InvalidArgumentException('Provided payload does not contain basic outcome claim');
+            }
+
+            return $this->readResult(
+                $registration,
+                $payload->getBasicOutcome()->getLisOutcomeServiceUrl(),
+                $payload->getBasicOutcome()->getLisResultSourcedId()
+            );
+
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Read result error from payload: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-bo/v1p1#readresult
+     * @throws LtiExceptionInterface
      */
     public function readResult(
         RegistrationInterface $registration,
-        BasicOutcomeClaim $basicOutcomeClaim
+        string $lisOutcomeServiceUrl,
+        string $lisResultSourcedId
     ): BasicOutcomeResultInterface {
         try {
             $xml = $this->twig->render(
                 'basic-outcome/read-result.xml.twig',
                 [
-                    'messageIdentifier' => $this->messageIdentifierGenerator->generate(),
-                    'lisResultSourcedId' => $basicOutcomeClaim->getLisResultSourcedId()
+                    'messageIdentifier' => $this->generator->generate(),
+                    'lisResultSourcedId' => $lisResultSourcedId
                 ]
             );
 
-            return $this->sendBasicOutcome($registration, $basicOutcomeClaim, $xml);
+            return $this->sendBasicOutcome($registration, $lisOutcomeServiceUrl, $xml);
 
         } catch (Throwable $exception) {
             throw new LtiException(
@@ -98,12 +128,47 @@ class BasicOutcomeServiceClient
     }
 
     /**
-     * @se https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult
-     * @throws LtiException
+     * @see https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult
+     * @throws LtiExceptionInterface
+     */
+    public function replaceResultForPayload(
+        RegistrationInterface $registration,
+        LtiMessagePayloadInterface $payload,
+        float $score,
+        string $language = 'en'
+    ): BasicOutcomeResultInterface {
+        try {
+            if (null === $payload->getBasicOutcome()) {
+                throw new InvalidArgumentException('Provided payload does not contain basic outcome claim');
+            }
+
+            return $this->replaceResult(
+                $registration,
+                $payload->getBasicOutcome()->getLisOutcomeServiceUrl(),
+                $payload->getBasicOutcome()->getLisResultSourcedId(),
+                $score,
+                $language
+            );
+
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Replace result error for payload: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult
+     * @throws LtiExceptionInterface
      */
     public function replaceResult(
         RegistrationInterface $registration,
-        BasicOutcomeClaim $basicOutcomeClaim,
+        string $lisOutcomeServiceUrl,
+        string $lisResultSourcedId,
         float $score,
         string $language = 'en'
     ): BasicOutcomeResultInterface {
@@ -115,14 +180,14 @@ class BasicOutcomeServiceClient
             $xml = $this->twig->render(
                 'basic-outcome/replace-result.xml.twig',
                 [
-                    'messageIdentifier' => $this->messageIdentifierGenerator->generate(),
-                    'lisResultSourcedId' => $basicOutcomeClaim->getLisResultSourcedId(),
+                    'messageIdentifier' => $this->generator->generate(),
+                    'lisResultSourcedId' => $lisResultSourcedId,
                     'score' => $score,
                     'language' => $language
                 ]
             );
 
-            return $this->sendBasicOutcome($registration, $basicOutcomeClaim, $xml);
+            return $this->sendBasicOutcome($registration, $lisOutcomeServiceUrl, $xml);
 
         } catch (Throwable $exception) {
             throw new LtiException(
@@ -134,23 +199,54 @@ class BasicOutcomeServiceClient
     }
 
     /**
-     * @se https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult
-     * @throws LtiException
+     * @see https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult
+     * @throws LtiExceptionInterface
+     */
+    public function deleteResultForPayload(
+        RegistrationInterface $registration,
+        LtiMessagePayloadInterface $payload
+    ): BasicOutcomeResultInterface {
+        try {
+            if (null === $payload->getBasicOutcome()) {
+                throw new InvalidArgumentException('Provided payload does not contain basic outcome claim');
+            }
+
+            return $this->deleteResult(
+                $registration,
+                $payload->getBasicOutcome()->getLisOutcomeServiceUrl(),
+                $payload->getBasicOutcome()->getLisResultSourcedId()
+            );
+
+        } catch (LtiExceptionInterface $exception) {
+            throw $exception;
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Delete result error for payload: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult
+     * @throws LtiExceptionInterface
      */
     public function deleteResult(
         RegistrationInterface $registration,
-        BasicOutcomeClaim $basicOutcomeClaim
+        string $lisOutcomeServiceUrl,
+        string $lisResultSourcedId
     ): BasicOutcomeResultInterface {
         try {
             $xml = $this->twig->render(
                 'basic-outcome/delete-result.xml.twig',
                 [
-                    'messageIdentifier' => $this->messageIdentifierGenerator->generate(),
-                    'lisResultSourcedId' => $basicOutcomeClaim->getLisResultSourcedId()
+                    'messageIdentifier' => $this->generator->generate(),
+                    'lisResultSourcedId' => $lisResultSourcedId
                 ]
             );
 
-            return $this->sendBasicOutcome($registration, $basicOutcomeClaim, $xml);
+            return $this->sendBasicOutcome($registration, $lisOutcomeServiceUrl, $xml);
 
         } catch (Throwable $exception) {
             throw new LtiException(
@@ -162,31 +258,31 @@ class BasicOutcomeServiceClient
     }
 
     /**
-     * @throws LtiException
+     * @throws LtiExceptionInterface
      */
     public function sendBasicOutcome(
         RegistrationInterface $registration,
-        BasicOutcomeClaim $basicOutcomeClaim,
-        string $basicOutcomeXML
+        string $lisOutcomeServiceUrl,
+        string $xml
     ): BasicOutcomeResultInterface {
         try {
             $response = $this->client->request(
                 $registration,
                 'POST',
-                $basicOutcomeClaim->getLisOutcomeServiceUrl(),
+                $lisOutcomeServiceUrl,
                 [
                     'headers' => [
                         'Content-Type' => static::CONTENT_TYPE_BASIC_OUTCOME,
-                        'Content-Length' => strlen($basicOutcomeXML),
+                        'Content-Length' => strlen($xml),
                     ],
-                    'body' => $basicOutcomeXML
+                    'body' => $xml
                 ],
                 [
                     static::AUTHORIZATION_SCOPE_BASIC_OUTCOME
                 ]
             );
 
-            return $this->basicOutcomeResultFactory->create($response->getBody()->__toString());
+            return $this->factory->create($response->getBody()->__toString());
 
         } catch (Throwable $exception) {
             throw new LtiException(
