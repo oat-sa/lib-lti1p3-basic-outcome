@@ -142,7 +142,6 @@ $result = $client->deleteResult(
     $registration,                         // [required] as the tool, it will call the platform of this registration
     'https://example.com/basic-outcome',   // [required] to a given basic outcome service url
     'resultSourcedId'                      // [required] for a given result sourced id
-
 );
 
 if ($result->isSuccess()) {

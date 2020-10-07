@@ -27,7 +27,7 @@ You can then find below usage tutorials, presented by topics.
 
 ### Configuration
 
-- how to [configure the underlying LTI 1.3 Core library](https://github.com/oat-sa/lib-lti1p3-core#quick-start).
+- how to [configure the underlying LTI 1.3 Core library](https://github.com/oat-sa/lib-lti1p3-core#quick-start)
 
 ### Tool
 
