@@ -3,21 +3,23 @@
     <imsx_POXHeader>
         <imsx_POXRequestHeaderInfo>
             <imsx_version>V1.0</imsx_version>
-            <imsx_messageIdentifier>{{ messageIdentifier }}</imsx_messageIdentifier>
+            <imsx_messageIdentifier>{{ message.identifier }}</imsx_messageIdentifier>
         </imsx_POXRequestHeaderInfo>
     </imsx_POXHeader>
     <imsx_POXBody>
         <replaceResultRequest>
             <resultRecord>
                 <sourcedGUID>
-                    <sourcedId>{{ lisResultSourcedId }}</sourcedId>
+                    <sourcedId>{{ message.body.sourcedId }}</sourcedId>
                 </sourcedGUID>
+                {% if message.body.score %}
                 <result>
                     <resultScore>
-                        <language>{{ language|default('en') }}</language>
-                        <textString>{{ score }}</textString>
+                        <language>{{ message.body.language|default('en') }}</language>
+                        <textString>{{ message.body.score }}</textString>
                     </resultScore>
                 </result>
+                {% endif %}
             </resultRecord>
         </replaceResultRequest>
     </imsx_POXBody>

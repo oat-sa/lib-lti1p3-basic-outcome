@@ -20,20 +20,15 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Result;
+namespace OAT\Library\Lti1p3BasicOutcome\Service\Server\Handler;
 
-use Symfony\Component\DomCrawler\Crawler;
+use OAT\Library\Lti1p3BasicOutcome\Message\OutcomeRequest;
 
-class BasicOutcomeResultFactory implements BasicOutcomeResultFactoryInterface
+interface OutcomeServiceServerHandlerInterface
 {
-    public function create(string $content): BasicOutcomeResultInterface
-    {
-        $crawler = new Crawler($content);
+    public function handleReadResult(string $sourcedId): OutcomeServiceServerHandlerResult;
 
-        $isSuccess = $crawler
-            ->filterXPath('//imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_statusInfo/imsx_codeMajor')
-            ->text('failure') === 'success';
+    public function handleReplaceResult(string $sourcedId, float $score, string $language = 'en'): OutcomeServiceServerHandlerResult;
 
-        return new BasicOutcomeResult($isSuccess, $content);
-    }
+    public function handleDeleteResult(string $sourcedId): OutcomeServiceServerHandlerResult;
 }

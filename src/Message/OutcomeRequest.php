@@ -20,9 +20,12 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Result;
+namespace OAT\Library\Lti1p3BasicOutcome\Message;
 
-interface BasicOutcomeResultFactoryInterface
+class OutcomeRequest extends AbstractMessage
 {
-    public function create(string $content): BasicOutcomeResultInterface;
+    public function getType(): string
+    {
+        return static::TYPE_REQUEST;
+    }
 }

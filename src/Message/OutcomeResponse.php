@@ -20,15 +20,31 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Factory;
+namespace OAT\Library\Lti1p3BasicOutcome\Message;
 
-use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
-use Symfony\Component\DomCrawler\Crawler;
+use OAT\Library\Lti1p3BasicOutcome\Message\Parts\Body;
+use OAT\Library\Lti1p3BasicOutcome\Message\Parts\Info;
 
-class BasicOutcomeResultCrawlerFactory extends Crawler
+class OutcomeResponse extends AbstractMessage
 {
-    public function create(BasicOutcomeResultInterface $basicOutcomeResult): Crawler
+    /** @var Info */
+    private $info;
+
+    public function __construct(string $identifier, string $operation, Info $info, Body $body = null)
     {
-        return new Crawler($basicOutcomeResult->getContent());
+        parent::__construct($identifier, $operation, $body);
+
+        $this->info = $info;
+    }
+
+    public function getType(): string
+    {
+        return static::TYPE_RESPONSE;
+    }
+
+    public function getInfo(): Info
+    {
+        return $this->info;
     }
 }
+

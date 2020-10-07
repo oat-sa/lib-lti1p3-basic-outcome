@@ -9,7 +9,8 @@
         "oat-sa/lib-lti1p3-core": "^2.4",
         "ramsey/uuid": "^3.8",
         "symfony/dom-crawler": "^5.1",
-        "twig/twig": "^3.0"
+        "twig/twig": "^3.0",
+        "symfony/serializer": "^5.1"
     },
     "require-dev": {
         "phpunit/phpunit": "^8.5",

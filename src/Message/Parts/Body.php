@@ -20,29 +20,39 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Result;
+namespace OAT\Library\Lti1p3BasicOutcome\Message\Parts;
 
-class BasicOutcomeResult implements BasicOutcomeResultInterface
+class Body
 {
-    /** @var bool */
-    private $isSuccess;
+    /** @var string|null */
+    private $sourcedId;
 
-    /** @var string */
-    private $content;
+    /** @var float|null */
+    private $score;
 
-    public function __construct(bool $isSuccess, string $content)
+    /** @var string|null */
+    private $language;
+
+    public function __construct(string $sourcedId = null, float $score = null, string $language = null)
     {
-        $this->isSuccess = $isSuccess;
-        $this->content = $content;
+        $this->sourcedId = $sourcedId;
+        $this->score = $score;
+        $this->language = $language;
     }
 
-    public function isSuccess(): bool
+    public function getSourcedId(): ?string
     {
-        return $this->isSuccess;
+        return $this->sourcedId;
     }
 
-    public function getContent(): string
+    public function getScore(): ?float
     {
-        return $this->content;
+        return $this->score;
+    }
+
+    public function getLanguage(): ?string
+    {
+        return $this->language;
     }
 }
+

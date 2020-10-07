@@ -20,11 +20,40 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Result;
+namespace OAT\Library\Lti1p3BasicOutcome\Message;
 
-interface BasicOutcomeResultInterface
+use OAT\Library\Lti1p3BasicOutcome\Message\Parts\Body;
+
+abstract class AbstractMessage implements MessageInterface
 {
-    public function isSuccess(): bool;
+    /** @var string */
+    protected $identifier;
 
-    public function getContent(): string;
+    /** @var string */
+    protected $operation;
+
+    /** @var Body|null */
+    protected $body;
+
+    public function __construct(string $identifier, string $operation, Body $body = null)
+    {
+        $this->identifier = $identifier;
+        $this->operation = $operation;
+        $this->body = $body;
+    }
+
+    public function getIdentifier(): string
+    {
+        return $this->identifier;
+    }
+
+    public function getOperation(): string
+    {
+        return $this->operation;
+    }
+
+    public function getBody(): ?Body
+    {
+        return $this->body;
+    }
 }
