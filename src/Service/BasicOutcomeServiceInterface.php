@@ -20,15 +20,10 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Factory;
+namespace OAT\Library\Lti1p3BasicOutcome\Service;
 
-use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
-use Symfony\Component\DomCrawler\Crawler;
-
-class BasicOutcomeResultCrawlerFactory
+interface BasicOutcomeServiceInterface
 {
-    public function create(BasicOutcomeResultInterface $basicOutcomeResult): Crawler
-    {
-        return new Crawler($basicOutcomeResult->getContent());
-    }
+    public const AUTHORIZATION_SCOPE_BASIC_OUTCOME = 'https://purl.imsglobal.org/spec/lti-bo/scope/basicoutcome';
+    public const CONTENT_TYPE_BASIC_OUTCOME = 'application/vnd.ims.lti.v1.outcome+xml';
 }
