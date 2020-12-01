@@ -28,7 +28,8 @@ use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
 use OAT\Library\Lti1p3BasicOutcome\Service\Client\BasicOutcomeServiceClient;
 use OAT\Library\Lti1p3BasicOutcome\Tests\Traits\TwigTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
-use OAT\Library\Lti1p3Core\Message\Claim\BasicOutcomeClaim;
+use OAT\Library\Lti1p3Core\Message\Payload\Claim\BasicOutcomeClaim;
+use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
 use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
@@ -75,6 +76,7 @@ class MessageIdentifierGeneratorTest extends TestCase
             ->expects($this->any())
             ->method('generate')
             ->willReturn(static::TEST_MESSAGE_ID);
+
         $this->serviceClientMock = $this->createMock(ServiceClientInterface::class);
 
         $this->subject = new BasicOutcomeServiceClient(
@@ -84,7 +86,7 @@ class MessageIdentifierGeneratorTest extends TestCase
         );
     }
 
-    public function testReadResultSuccess(): void
+    public function testReadResultFromPayloadSuccess(): void
     {
         $bodyContent = $this->twig->render('basic-outcome/read-result.xml.twig', [
             'messageIdentifier' => static::TEST_MESSAGE_ID,
@@ -98,7 +100,13 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->prepareServiceClientForSuccess($bodyContent, $responseContent);
 
-        $result = $this->subject->readResult($this->registration, $this->basicOutcomeClaim);
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn($this->basicOutcomeClaim);
+
+        $result = $this->subject->readResultFromPayload($this->registration, $payload);
 
         $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
         $this->assertTrue($result->isSuccess());
@@ -110,7 +118,21 @@ class MessageIdentifierGeneratorTest extends TestCase
         );
     }
 
-    public function testReadResultFailure(): void
+    public function testReadResultFromPayloadFailureOnMissingBasicOutcomeClaim(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Read result error from payload: Provided payload does not contain basic outcome claim');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn(null);
+
+        $this->subject->readResultFromPayload($this->registration, $payload);
+    }
+
+    public function testReadResultFromPayloadFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Read result error: Cannot send basic outcome: error');
@@ -122,10 +144,16 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->prepareServiceClientForError($bodyContent);
 
-        $this->subject->readResult($this->registration, $this->basicOutcomeClaim);
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn($this->basicOutcomeClaim);
+
+        $this->subject->readResultFromPayload($this->registration, $payload);
     }
 
-    public function testReplaceResultSuccess(): void
+    public function testReplaceResultForPayloadSuccess(): void
     {
         $score = 0.5;
         $language = 'fr';
@@ -146,7 +174,13 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->prepareServiceClientForSuccess($bodyContent, $responseContent);
 
-        $result = $this->subject->replaceResult($this->registration, $this->basicOutcomeClaim, $score, $language);
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn($this->basicOutcomeClaim);
+
+        $result = $this->subject->replaceResultForPayload($this->registration, $payload, $score, $language);
 
         $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
         $this->assertTrue($result->isSuccess());
@@ -158,15 +192,35 @@ class MessageIdentifierGeneratorTest extends TestCase
         );
     }
 
-    public function testReplaceResultFailureWithInvalidScore(): void
+    public function testReplaceResultForPayloadFailureWithInvalidScore(): void
     {
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Score must be decimal numeric value in the range 0.0 - 1.0');
 
-        $this->subject->replaceResult($this->registration, $this->basicOutcomeClaim, 999);
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn($this->basicOutcomeClaim);
+
+        $this->subject->replaceResultForPayload($this->registration, $payload, 999);
     }
 
-    public function testReplaceResultFailure(): void
+    public function testReplaceResultFotPayloadFailureOnMissingBasicOutcomeClaim(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Replace result error for payload: Provided payload does not contain basic outcome claim');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn(null);
+
+        $this->subject->replaceResultForPayload($this->registration, $payload, 0.2);
+    }
+
+    public function testReplaceResultForPayloadFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Replace result error: Cannot send basic outcome: error');
@@ -183,10 +237,16 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->prepareServiceClientForError($bodyContent);
 
-        $this->subject->replaceResult($this->registration, $this->basicOutcomeClaim, $score, $language);
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn($this->basicOutcomeClaim);
+
+        $this->subject->replaceResultForPayload($this->registration, $payload, $score, $language);
     }
 
-    public function testDeleteResultSuccess(): void
+    public function testDeleteResultForPayloadSuccess(): void
     {
         $bodyContent = $this->twig->render('basic-outcome/delete-result.xml.twig', [
             'messageIdentifier' => static::TEST_MESSAGE_ID,
@@ -200,7 +260,13 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->prepareServiceClientForSuccess($bodyContent, $responseContent);
 
-        $result = $this->subject->deleteResult($this->registration, $this->basicOutcomeClaim);
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn($this->basicOutcomeClaim);
+
+        $result = $this->subject->deleteResultForPayload($this->registration, $payload);
 
         $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
         $this->assertTrue($result->isSuccess());
@@ -212,7 +278,21 @@ class MessageIdentifierGeneratorTest extends TestCase
         );
     }
 
-    public function testDeleteResultFailure(): void
+    public function testDeleteResultFotPayloadFailureOnMissingBasicOutcomeClaim(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Delete result error for payload: Provided payload does not contain basic outcome claim');
+
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn(null);
+
+        $this->subject->deleteResultForPayload($this->registration, $payload);
+    }
+
+    public function testDeleteForPayloadResultFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Delete result error: Cannot send basic outcome: error');
@@ -224,7 +304,13 @@ class MessageIdentifierGeneratorTest extends TestCase
 
         $this->prepareServiceClientForError($bodyContent);
 
-        $this->subject->deleteResult($this->registration, $this->basicOutcomeClaim);
+        $payload = $this->createMock(LtiMessagePayloadInterface::class);
+        $payload
+            ->expects($this->any())
+            ->method('getBasicOutcome')
+            ->willReturn($this->basicOutcomeClaim);
+
+        $this->subject->deleteResultForPayload($this->registration, $payload);
     }
 
     private function prepareServiceClientForSuccess(string $bodyContent, string $responseContent): void
