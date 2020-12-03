@@ -20,15 +20,13 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Service\Server\Handler;
+namespace OAT\Library\Lti1p3BasicOutcome\Serializer\Request;
 
-use OAT\Library\Lti1p3BasicOutcome\Message\OutcomeRequest;
+use OAT\Library\Lti1p3BasicOutcome\Message\Request\BasicOutcomeRequestInterface;
 
-interface OutcomeServiceServerHandlerInterface
+interface BasicOutcomeRequestSerializerInterface
 {
-    public function handleReadResult(string $sourcedId): OutcomeServiceServerHandlerResult;
+    public function serialize(BasicOutcomeRequestInterface $basicOutcomeRequest): string;
 
-    public function handleReplaceResult(string $sourcedId, float $score, string $language = 'en'): OutcomeServiceServerHandlerResult;
-
-    public function handleDeleteResult(string $sourcedId): OutcomeServiceServerHandlerResult;
+    public function deserialize(string $xml): BasicOutcomeRequestInterface;
 }

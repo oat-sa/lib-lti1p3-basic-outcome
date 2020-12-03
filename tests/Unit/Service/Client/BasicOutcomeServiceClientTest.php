@@ -109,7 +109,7 @@ class MessageIdentifierGeneratorTest extends TestCase
         $result = $this->subject->readResultFromPayload($this->registration, $payload);
 
         $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
-        $this->assertTrue($result->isSuccess());
+        $this->assertTrue($result->success());
 
         $crawler = $this->crawlerFactory->create($result);
         $this->assertEquals(
@@ -183,7 +183,7 @@ class MessageIdentifierGeneratorTest extends TestCase
         $result = $this->subject->replaceResultForPayload($this->registration, $payload, $score, $language);
 
         $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
-        $this->assertTrue($result->isSuccess());
+        $this->assertTrue($result->success());
 
         $crawler = $this->crawlerFactory->create($result);
         $this->assertEquals(
@@ -269,7 +269,7 @@ class MessageIdentifierGeneratorTest extends TestCase
         $result = $this->subject->deleteResultForPayload($this->registration, $payload);
 
         $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
-        $this->assertTrue($result->isSuccess());
+        $this->assertTrue($result->success());
 
         $crawler = $this->crawlerFactory->create($result);
         $this->assertEquals(

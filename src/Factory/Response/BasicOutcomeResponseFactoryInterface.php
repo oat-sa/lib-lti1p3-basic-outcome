@@ -20,24 +20,20 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Message;
+namespace OAT\Library\Lti1p3BasicOutcome\Factory\Response;
 
-use OAT\Library\Lti1p3BasicOutcome\Message\Parts\Body;
+use OAT\Library\Lti1p3BasicOutcome\Message\Response\BasicOutcomeResponseInterface;
 
-interface MessageInterface
+interface BasicOutcomeResponseFactoryInterface
 {
-    public const TYPE_REQUEST = 'request';
-    public const TYPE_RESPONSE = 'response';
-
-    public const OPERATION_READ_RESULT =  'readResult';
-    public const OPERATION_REPLACE_RESULT =  'replaceResult';
-    public const OPERATION_DELETE_RESULT =  'deleteResult';
-
-    public function getIdentifier(): string;
-
-    public function getType(): string;
-
-    public function getOperation(): string;
-
-    public function getBody(): ?Body;
+    public function create(
+        string $type,
+        bool $success,
+        string $referenceRequestIdentifier,
+        string $referenceRequestType,
+        string $description = null,
+        float $score = null,
+        string $language =  null,
+        string $identifier = null
+    ): BasicOutcomeResponseInterface;
 }

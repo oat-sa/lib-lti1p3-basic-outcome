@@ -20,18 +20,21 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Generator;
+namespace OAT\Library\Lti1p3BasicOutcome\Message\Response;
 
-use Exception;
-use Ramsey\Uuid\Uuid;
+use OAT\Library\Lti1p3BasicOutcome\Message\BasicOutcomeMessageInterface;
 
-class MessageIdentifierGenerator implements MessageIdentifierGeneratorInterface
+interface BasicOutcomeResponseInterface extends BasicOutcomeMessageInterface
 {
-    /**
-     * @throws Exception
-     */
-    public function generate(): string
-    {
-        return Uuid::uuid4()->toString();
-    }
+    public function isSuccess(): bool;
+
+    public function getReferenceRequestIdentifier(): string;
+
+    public function getReferenceRequestType(): string;
+
+    public function getDescription(): ?string;
+
+    public function getScore(): ?float;
+
+    public function getLanguage(): ?string;
 }

@@ -20,31 +20,18 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Service\Server\Handler;
+namespace OAT\Library\Lti1p3BasicOutcome\Factory;
 
-use OAT\Library\Lti1p3BasicOutcome\Message\OutcomeRequest;
+use OAT\Library\Lti1p3BasicOutcome\Generator\BasicOutcomeMessageIdentifierGenerator;
+use OAT\Library\Lti1p3BasicOutcome\Generator\BasicOutcomeMessageIdentifierGeneratorInterface;
 
-class OutcomeServiceServerHandlerResult
+abstract class AbstractBasicOutcomeMessageFactory
 {
-    /** @var bool */
-    private $isSuccess;
+    /** @var BasicOutcomeMessageIdentifierGeneratorInterface */
+    protected $generator;
 
-    /** @var string|null */
-    private $feedback;
-
-    public function __construct(bool $isSuccess, string $feedback = null)
+    public function __construct(BasicOutcomeMessageIdentifierGeneratorInterface $generator = null)
     {
-        $this->isSuccess = $isSuccess;
-        $this->feedback = $feedback;
-    }
-
-    public function isSuccess(): bool
-    {
-        return $this->isSuccess;
-    }
-
-    public function getFeedback(): ?string
-    {
-        return $this->feedback;
+        $this->generator = $generator ?? new BasicOutcomeMessageIdentifierGenerator();
     }
 }

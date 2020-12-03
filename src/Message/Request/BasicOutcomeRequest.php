@@ -20,52 +20,47 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Message\Parts;
+namespace OAT\Library\Lti1p3BasicOutcome\Message\Request;
 
-class Info
+use OAT\Library\Lti1p3BasicOutcome\Message\AbstractBasicOutcomeMessage;
+
+class BasicOutcomeRequest extends AbstractBasicOutcomeMessage implements BasicOutcomeRequestInterface
 {
     /** @var string */
-    private $status;
+    private $sourcedId;
 
-    /** @var string */
-    private $messageRefIdentifier;
-
-    /** @var string */
-    private $operationRefIdentifier;
+    /** @var float|null */
+    private $score;
 
     /** @var string|null */
-    private $description;
+    private $language;
 
     public function __construct(
-        string $status,
-        string $messageRefIdentifier,
-        string $operationRefIdentifier,
-        string $description = null
+        string $identifier,
+        string $type,
+        string $sourcedId,
+        float $score = null,
+        string $language = null
     ) {
-        $this->status = $status;
-        $this->messageRefIdentifier = $messageRefIdentifier;
-        $this->operationRefIdentifier = $operationRefIdentifier;
-        $this->description = $description;
+        parent::__construct($identifier, $type);
+
+        $this->sourcedId = $sourcedId;
+        $this->score = $score;
+        $this->language = $language;
     }
 
-    public function getStatus(): string
+    public function getSourcedId(): string
     {
-        return $this->status;
+        return $this->sourcedId;
     }
 
-    public function getMessageRefIdentifier(): ?string
+    public function getScore(): ?float
     {
-        return $this->messageRefIdentifier;
+        return $this->score;
     }
 
-    public function getOperationRefIdentifier(): ?string
+    public function getLanguage(): ?string
     {
-        return $this->operationRefIdentifier;
-    }
-
-    public function getDescription(): ?string
-    {
-        return $this->description;
+        return $this->language;
     }
 }
-

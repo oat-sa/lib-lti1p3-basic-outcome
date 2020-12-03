@@ -20,31 +20,17 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Message;
+namespace OAT\Library\Lti1p3BasicOutcome\Factory\Request;
 
-use OAT\Library\Lti1p3BasicOutcome\Message\Parts\Body;
-use OAT\Library\Lti1p3BasicOutcome\Message\Parts\Info;
+use OAT\Library\Lti1p3BasicOutcome\Message\Request\BasicOutcomeRequestInterface;
 
-class OutcomeResponse extends AbstractMessage
+interface BasicOutcomeRequestFactoryInterface
 {
-    /** @var Info */
-    private $info;
-
-    public function __construct(string $identifier, string $operation, Info $info, Body $body = null)
-    {
-        parent::__construct($identifier, $operation, $body);
-
-        $this->info = $info;
-    }
-
-    public function getType(): string
-    {
-        return static::TYPE_RESPONSE;
-    }
-
-    public function getInfo(): Info
-    {
-        return $this->info;
-    }
+    public function create(
+        string $type,
+        string $sourcedId,
+        float $score = null,
+        string $language = null,
+        string $identifier = null
+    ): BasicOutcomeRequestInterface;
 }
-

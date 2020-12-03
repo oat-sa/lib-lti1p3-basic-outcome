@@ -56,7 +56,7 @@ $result = $client->readResult(
     'resultSourcedId'                      // [required] for a given result sourced id
 );
 
-if ($result->isSuccess()) {
+if ($result->success()) {
     // you can work directly on the outcome response content
     $content = $result->getContent();
   
@@ -102,7 +102,7 @@ $result = $client->replaceResult(
     'en'                                   // [optional] for a given language
 );
 
-if ($result->isSuccess()) {
+if ($result->success()) {
     // you can work directly on the outcome response content
     $content = $result->getContent();
   
@@ -144,7 +144,7 @@ $result = $client->deleteResult(
     'resultSourcedId'                      // [required] for a given result sourced id
 );
 
-if ($result->isSuccess()) {
+if ($result->success()) {
     // you can work directly on the outcome response content
     $content = $result->getContent();
   

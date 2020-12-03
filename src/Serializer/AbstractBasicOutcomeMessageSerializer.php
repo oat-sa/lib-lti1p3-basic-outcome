@@ -20,40 +20,23 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Message;
+namespace OAT\Library\Lti1p3BasicOutcome\Serializer;
 
-use OAT\Library\Lti1p3BasicOutcome\Message\Parts\Body;
+use Symfony\Component\DomCrawler\Crawler;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
-abstract class AbstractMessage implements MessageInterface
+abstract class AbstractBasicOutcomeMessageSerializer
 {
-    /** @var string */
-    protected $identifier;
+    /** @var Environment */
+    protected $twig;
 
-    /** @var string */
-    protected $operation;
+    /** @var Crawler */
+    protected $crawler;
 
-    /** @var Body|null */
-    protected $body;
-
-    public function __construct(string $identifier, string $operation, Body $body = null)
+    public function __construct(Environment $twig = null, Crawler $crawler = null)
     {
-        $this->identifier = $identifier;
-        $this->operation = $operation;
-        $this->body = $body;
-    }
-
-    public function getIdentifier(): string
-    {
-        return $this->identifier;
-    }
-
-    public function getOperation(): string
-    {
-        return $this->operation;
-    }
-
-    public function getBody(): ?Body
-    {
-        return $this->body;
+        $this->twig = $twig ?? new Environment(new FilesystemLoader(__DIR__ . '/../../templates'));
+        $this->crawler = $crawler ?? new Crawler();
     }
 }

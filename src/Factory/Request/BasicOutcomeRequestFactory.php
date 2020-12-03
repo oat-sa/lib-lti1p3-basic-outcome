@@ -20,39 +20,27 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Message\Parts;
+namespace OAT\Library\Lti1p3BasicOutcome\Factory\Request;
 
-class Body
+use OAT\Library\Lti1p3BasicOutcome\Factory\AbstractBasicOutcomeMessageFactory;
+use OAT\Library\Lti1p3BasicOutcome\Message\Request\BasicOutcomeRequest;
+use OAT\Library\Lti1p3BasicOutcome\Message\Request\BasicOutcomeRequestInterface;
+
+class BasicOutcomeRequestFactory extends AbstractBasicOutcomeMessageFactory implements BasicOutcomeRequestFactoryInterface
 {
-    /** @var string|null */
-    private $sourcedId;
-
-    /** @var float|null */
-    private $score;
-
-    /** @var string|null */
-    private $language;
-
-    public function __construct(string $sourcedId = null, float $score = null, string $language = null)
-    {
-        $this->sourcedId = $sourcedId;
-        $this->score = $score;
-        $this->language = $language;
-    }
-
-    public function getSourcedId(): ?string
-    {
-        return $this->sourcedId;
-    }
-
-    public function getScore(): ?float
-    {
-        return $this->score;
-    }
-
-    public function getLanguage(): ?string
-    {
-        return $this->language;
+    public function create(
+        string $type,
+        string $sourcedId,
+        float $score = null,
+        string $language = null,
+        string $identifier = null
+    ): BasicOutcomeRequestInterface {
+        return new BasicOutcomeRequest(
+            $identifier ?? $this->generator->generate(),
+            $type,
+            $sourcedId,
+            $score,
+            $language
+        );
     }
 }
-

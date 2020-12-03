@@ -20,9 +20,15 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Generator;
+namespace OAT\Library\Lti1p3BasicOutcome\Message\Request;
 
-interface MessageIdentifierGeneratorInterface
+use OAT\Library\Lti1p3BasicOutcome\Message\BasicOutcomeMessageInterface;
+
+interface BasicOutcomeRequestInterface extends BasicOutcomeMessageInterface
 {
-    public function generate(): string;
+    public function getSourcedId(): string;
+
+    public function getScore(): ?float;
+
+    public function getLanguage(): ?string;
 }

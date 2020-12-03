@@ -20,12 +20,18 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Message;
+namespace OAT\Library\Lti1p3BasicOutcome\Generator;
 
-class OutcomeRequest extends AbstractMessage
+use Exception;
+use Ramsey\Uuid\Uuid;
+
+class BasicOutcomeMessageIdentifierGenerator implements BasicOutcomeMessageIdentifierGeneratorInterface
 {
-    public function getType(): string
+    /**
+     * @throws Exception
+     */
+    public function generate(): string
     {
-        return static::TYPE_REQUEST;
+        return Uuid::uuid4()->toString();
     }
 }

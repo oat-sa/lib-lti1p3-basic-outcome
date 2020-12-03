@@ -20,31 +20,13 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Service\Client\Result;
+namespace OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor;
 
-use OAT\Library\Lti1p3BasicOutcome\Message\OutcomeResponse;
-
-class OutcomeResult
+interface BasicOutcomeServiceServerProcessorInterface
 {
-    /** @var bool */
-    private $isSuccess;
+    public function processReadResult(string $sourcedId): BasicOutcomeServiceServerProcessorResult;
 
-    /** @var OutcomeResponse */
-    private $response;
+    public function processReplaceResult(string $sourcedId, float $score, string $language = 'en'): BasicOutcomeServiceServerProcessorResult;
 
-    public function __construct(bool $isSuccess, string $content)
-    {
-        $this->isSuccess = $isSuccess;
-        $this->content = $content;
-    }
-
-    public function isSuccess(): bool
-    {
-        return $this->isSuccess;
-    }
-
-    public function getContent(): string
-    {
-        return $this->content;
-    }
+    public function processDeleteResult(string $sourcedId): BasicOutcomeServiceServerProcessorResult;
 }
