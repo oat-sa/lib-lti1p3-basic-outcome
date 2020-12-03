@@ -94,13 +94,17 @@ class BasicOutcomeRequestSerializer extends AbstractBasicOutcomeMessageSerialize
             $score = $language = null;
 
             if ($type === BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT) {
-                $score = (float) $this->crawler
+                $scoreData = $this->crawler
                     ->filterXPath('//imsx_POXEnvelopeRequest/imsx_POXBody/*/resultRecord/result/resultScore/textString')
                     ->text();
 
-                $language = $this->crawler
+                $score = empty($scoreData) ? null : floatval($scoreData);
+
+                $languageData = $this->crawler
                     ->filterXPath('//imsx_POXEnvelopeRequest/imsx_POXBody/*/resultRecord/result/resultScore/language')
                     ->text();
+
+                $language = empty($languageData) ? null : $languageData;
             }
 
             return $this->factory->create(
