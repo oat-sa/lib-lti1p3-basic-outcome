@@ -15,11 +15,11 @@ This library provides a [BasicOutcomeServiceClient](../src/Service/Client/BasicO
 - [delete result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult)
 
 You can use:
-- `readResultForPayload()` to [read a result](https://www.imsglobal.org/spec/lti-bo/v1p1#readresult) for a received LTI message payload (will use basic outcome claim)
+- `readResultForPayload()` to [read a result](https://www.imsglobal.org/spec/lti-bo/v1p1#readresult) for a received LTI message payload
 - `readResult()` to [read a result](https://www.imsglobal.org/spec/lti-bo/v1p1#readresult) from a given basic outcome url and result sourced id
-- `replaceResultForPayload()` to [replace a result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult) for a received LTI message payload (will use basic outcome claim), with given score and language
+- `replaceResultForPayload()` to [replace a result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult) for a received LTI message payload, with given score and language
 - `replaceResult()` to [replace a result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult) for a given basic outcome url, result sourced id, score and language
-- `deleteResultForPayload()` to [delete a result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult) for a received LTI message payload (will use basic outcome claim)
+- `deleteResultForPayload()` to [delete a result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult) for a received LTI message payload
 - `deleteResult()` to [delete a result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult) for a given basic outcome url and result sourced id
 
 ## Usage
@@ -94,7 +94,7 @@ $client = new BasicOutcomeServiceCLient();
 $result = $client->replaceResultForPayload(
     $registration, // [required] as the tool, it will call the platform of this registration
     $payload,      // [required] for the LTI message payload containing the basic outcome claim result sourced id (got at LTI launch)
-    0.42,           // [required] for a given score
+    0.42,          // [required] for a given score
     'en'           // [optional] for a given language
 );
 
@@ -103,7 +103,7 @@ $response = $client->replaceResult(
     $registration,                         // [required] as the tool, it will call the platform of this registration
     'https://example.com/basic-outcome',   // [required] to a given basic outcome service url
     'resultSourcedId',                     // [required] for a given result sourced id
-    0.42,                                   // [required] for a given score
+    0.42,                                  // [required] for a given score
     'en'                                   // [optional] for a given language
 );
 
