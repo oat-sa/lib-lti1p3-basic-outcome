@@ -22,339 +22,505 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Service\Client;
 
-use OAT\Library\Lti1p3BasicOutcome\Factory\BasicOutcomeResultCrawlerFactory;
-use OAT\Library\Lti1p3BasicOutcome\Generator\MessageIdentifierGeneratorInterface;
-use OAT\Library\Lti1p3BasicOutcome\Result\BasicOutcomeResultInterface;
+use Exception;
+use OAT\Library\Lti1p3BasicOutcome\Factory\Request\BasicOutcomeRequestFactory;
+use OAT\Library\Lti1p3BasicOutcome\Generator\BasicOutcomeMessageIdentifierGeneratorInterface;
+use OAT\Library\Lti1p3BasicOutcome\Message\BasicOutcomeMessageInterface;
+use OAT\Library\Lti1p3BasicOutcome\Message\Request\BasicOutcomeRequest;
+use OAT\Library\Lti1p3BasicOutcome\Message\Response\BasicOutcomeResponse;
+use OAT\Library\Lti1p3BasicOutcome\Message\Response\BasicOutcomeResponseInterface;
+use OAT\Library\Lti1p3BasicOutcome\Service\BasicOutcomeServiceInterface;
 use OAT\Library\Lti1p3BasicOutcome\Service\Client\BasicOutcomeServiceClient;
-use OAT\Library\Lti1p3BasicOutcome\Tests\Traits\TwigTestingTrait;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\Builder\MessagePayloadBuilder;
 use OAT\Library\Lti1p3Core\Message\Payload\Claim\BasicOutcomeClaim;
-use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayload;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
 use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
 use OAT\Library\Lti1p3Core\Tests\Traits\NetworkTestingTrait;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Util\Exception;
+use Twig\Environment;
+use Twig\Loader\FilesystemLoader;
 
-class MessageIdentifierGeneratorTest extends TestCase
+class BasicOutcomeServiceClientTest extends TestCase
 {
     use DomainTestingTrait;
     use NetworkTestingTrait;
-    use TwigTestingTrait;
 
-    private const TEST_SOURCED_ID = '123';
-    private const TEST_MESSAGE_ID = '456';
-    private const TEST_OUTCOME_URL = 'http://example.com/outcome';
+    /** @var Environment */
+    private $twig;
 
     /** @var ServiceClientInterface|MockObject */
-    private $serviceClientMock;
-
-    /** @var RegistrationInterface */
-    private $registration;
-
-    /** @var BasicOutcomeClaim */
-    private $basicOutcomeClaim;
-
-    /** @var BasicOutcomeResultCrawlerFactory */
-    private $crawlerFactory;
+    private $clientMock;
 
     /** @var BasicOutcomeServiceClient */
     private $subject;
 
     protected function setUp(): void
     {
-        $this->setUpTwig();
-
-        $this->registration = $this->createTestRegistration();
-        $this->basicOutcomeClaim = new BasicOutcomeClaim(self::TEST_SOURCED_ID, self::TEST_OUTCOME_URL);
-        $this->crawlerFactory = new BasicOutcomeResultCrawlerFactory();
-
-        $messageIdentifierGeneratorMock = $this->createMock(MessageIdentifierGeneratorInterface::class);
-        $messageIdentifierGeneratorMock
+        $generatorMock = $this->createMock(BasicOutcomeMessageIdentifierGeneratorInterface::class);
+        $generatorMock
             ->expects($this->any())
             ->method('generate')
-            ->willReturn(static::TEST_MESSAGE_ID);
+            ->willReturn('reqId');
 
-        $this->serviceClientMock = $this->createMock(ServiceClientInterface::class);
+        $this->twig = new Environment(new FilesystemLoader(__DIR__ . '/../../../../templates'));
+        $this->clientMock = $this->createMock(ServiceClientInterface::class);
 
         $this->subject = new BasicOutcomeServiceClient(
-            $this->serviceClientMock,
-            $this->twig,
-            $messageIdentifierGeneratorMock
+            $this->clientMock,
+            new BasicOutcomeRequestFactory($generatorMock)
         );
     }
 
-    public function testReadResultFromPayloadSuccess(): void
+    public function testReadResultForPayloadSuccess(): void
     {
-        $bodyContent = $this->twig->render('basic-outcome/read-result.xml.twig', [
-            'messageIdentifier' => static::TEST_MESSAGE_ID,
-            'lisResultSourcedId' => static::TEST_SOURCED_ID
-        ]);
+        $registration = $this->createTestRegistration();
 
-        $responseContent = $this->twig->render('read-result-response.xml.twig', [
-            'refMessageIdentifier' => static::TEST_MESSAGE_ID,
-            'status' => 'success'
-        ]);
-
-        $this->prepareServiceClientForSuccess($bodyContent, $responseContent);
-
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn($this->basicOutcomeClaim);
-
-        $result = $this->subject->readResultFromPayload($this->registration, $payload);
-
-        $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
-        $this->assertTrue($result->isSuccess());
-
-        $crawler = $this->crawlerFactory->create($result);
-        $this->assertEquals(
-            '789',
-            $crawler->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
+        $payload = new LtiMessagePayload(
+            (new MessagePayloadBuilder())
+                ->withClaim(new BasicOutcomeClaim('sourcedId', 'http://platform.com/basic-outcome'))
+                ->buildMessagePayload($registration->getToolKeyChain())
+                ->getToken()
         );
+
+        $boRequest = new BasicOutcomeRequest(
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_READ_RESULT,
+            'sourcedId'
+        );
+
+        $boResponse = new BasicOutcomeResponse(
+            'respId',
+            BasicOutcomeMessageInterface::TYPE_READ_RESULT,
+            true,
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_READ_RESULT,
+            'read description',
+            0.42,
+            'en'
+        );
+
+        $this->prepareClientMockForSuccess(
+            $registration,
+            'http://platform.com/basic-outcome',
+            $this->twig->render('request/readResultRequest.xml.twig', ['request' => $boRequest]),
+            $this->twig->render('response/readResultResponse.xml.twig', ['response' => $boResponse])
+        );
+
+        $response = $this->subject->readResultForPayload($registration, $payload);
+
+        $this->assertInstanceOf(BasicOutcomeResponseInterface::class, $response);
+
+        $this->assertEquals('respId', $response->getIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_READ_RESULT, $response->getType());
+        $this->assertTrue($response->isSuccess());
+        $this->assertEquals('reqId', $response->getReferenceRequestIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_READ_RESULT, $response->getReferenceRequestType());
+        $this->assertEquals('read description', $response->getDescription());
+        $this->assertEquals(0.42, $response->getScore());
+        $this->assertEquals('en', $response->getLanguage());
     }
 
-    public function testReadResultFromPayloadFailureOnMissingBasicOutcomeClaim(): void
+    public function testReadResultForPayloadFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Read result error from payload: Provided payload does not contain basic outcome claim');
+        $this->expectExceptionMessage('Read result error for payload: Provided payload does not contain basic outcome claim');
 
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn(null);
+        $registration = $this->createTestRegistration();
 
-        $this->subject->readResultFromPayload($this->registration, $payload);
+        $payload = new LtiMessagePayload(
+            (new MessagePayloadBuilder())
+                ->buildMessagePayload($registration->getToolKeyChain())
+                ->getToken()
+        );
+
+        $this->subject->readResultForPayload($registration, $payload);
     }
 
-    public function testReadResultFromPayloadFailure(): void
+    public function testReadResultForPayloadClientFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Read result error: Cannot send basic outcome: error');
+        $this->expectExceptionMessage('Read result error: Cannot send basic outcome: custom error');
 
-        $bodyContent = $this->twig->render('basic-outcome/read-result.xml.twig', [
-            'messageIdentifier' => static::TEST_MESSAGE_ID,
-            'lisResultSourcedId' => static::TEST_SOURCED_ID
-        ]);
+        $registration = $this->createTestRegistration();
 
-        $this->prepareServiceClientForError($bodyContent);
+        $payload = new LtiMessagePayload(
+            (new MessagePayloadBuilder())
+                ->withClaim(new BasicOutcomeClaim('sourcedId', 'http://platform.com/basic-outcome'))
+                ->buildMessagePayload($registration->getToolKeyChain())
+                ->getToken()
+        );
 
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn($this->basicOutcomeClaim);
+        $this->prepareClientMockForFailure();
 
-        $this->subject->readResultFromPayload($this->registration, $payload);
+        $this->subject->readResultForPayload($registration, $payload);
+    }
+
+    public function testReadResultSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $boRequest = new BasicOutcomeRequest(
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_READ_RESULT,
+            'sourcedId'
+        );
+
+        $boResponse = new BasicOutcomeResponse(
+            'respId',
+            BasicOutcomeMessageInterface::TYPE_READ_RESULT,
+            true,
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_READ_RESULT,
+            'read description',
+            0.42,
+            'en'
+        );
+
+        $this->prepareClientMockForSuccess(
+            $registration,
+            'http://platform.com/basic-outcome',
+            $this->twig->render('request/readResultRequest.xml.twig', ['request' => $boRequest]),
+            $this->twig->render('response/readResultResponse.xml.twig', ['response' => $boResponse])
+        );
+
+        $response = $this->subject->readResult($registration, 'http://platform.com/basic-outcome', 'sourcedId');
+
+        $this->assertInstanceOf(BasicOutcomeResponseInterface::class, $response);
+
+        $this->assertEquals('respId', $response->getIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_READ_RESULT, $response->getType());
+        $this->assertTrue($response->isSuccess());
+        $this->assertEquals('reqId', $response->getReferenceRequestIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_READ_RESULT, $response->getReferenceRequestType());
+        $this->assertEquals('read description', $response->getDescription());
+        $this->assertEquals(0.42, $response->getScore());
+        $this->assertEquals('en', $response->getLanguage());
+    }
+
+    public function testReadResultFailure(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Read result error: Cannot send basic outcome: custom error');
+
+        $this->prepareClientMockForFailure();
+
+        $this->subject->readResult($this->createTestRegistration(), 'http://platform.com/basic-outcome', 'sourcedId');
     }
 
     public function testReplaceResultForPayloadSuccess(): void
     {
-        $score = 0.5;
-        $language = 'fr';
+        $registration = $this->createTestRegistration();
 
-        $bodyContent = $this->twig->render('basic-outcome/replace-result.xml.twig', [
-            'messageIdentifier' => static::TEST_MESSAGE_ID,
-            'lisResultSourcedId' => static::TEST_SOURCED_ID,
-            'score' => $score,
-            'language' => $language
-        ]);
-
-        $responseContent = $this->twig->render('replace-result-response.xml.twig', [
-            'refMessageIdentifier' => static::TEST_MESSAGE_ID,
-            'status' => 'success',
-            'score' => $score,
-            'language' => $language
-        ]);
-
-        $this->prepareServiceClientForSuccess($bodyContent, $responseContent);
-
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn($this->basicOutcomeClaim);
-
-        $result = $this->subject->replaceResultForPayload($this->registration, $payload, $score, $language);
-
-        $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
-        $this->assertTrue($result->isSuccess());
-
-        $crawler = $this->crawlerFactory->create($result);
-        $this->assertEquals(
-            '789',
-            $crawler->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
+        $payload = new LtiMessagePayload(
+            (new MessagePayloadBuilder())
+                ->withClaim(new BasicOutcomeClaim('sourcedId', 'http://platform.com/basic-outcome'))
+                ->buildMessagePayload($registration->getToolKeyChain())
+                ->getToken()
         );
-    }
 
-    public function testReplaceResultForPayloadFailureWithInvalidScore(): void
-    {
-        $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Score must be decimal numeric value in the range 0.0 - 1.0');
+        $boRequest = new BasicOutcomeRequest(
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT,
+            'sourcedId',
+            0.42,
+            'en'
+        );
 
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn($this->basicOutcomeClaim);
+        $boResponse = new BasicOutcomeResponse(
+            'respId',
+            BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT,
+            true,
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT,
+            'replace description',
+            0.42,
+            'en'
+        );
 
-        $this->subject->replaceResultForPayload($this->registration, $payload, 999);
-    }
+        $this->prepareClientMockForSuccess(
+            $registration,
+            'http://platform.com/basic-outcome',
+            $this->twig->render('request/replaceResultRequest.xml.twig', ['request' => $boRequest]),
+            $this->twig->render('response/replaceResultResponse.xml.twig', ['response' => $boResponse])
+        );
 
-    public function testReplaceResultFotPayloadFailureOnMissingBasicOutcomeClaim(): void
-    {
-        $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Replace result error for payload: Provided payload does not contain basic outcome claim');
+        $response = $this->subject->replaceResultForPayload($registration, $payload, 0.42, 'en');
 
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn(null);
+        $this->assertInstanceOf(BasicOutcomeResponseInterface::class, $response);
 
-        $this->subject->replaceResultForPayload($this->registration, $payload, 0.2);
+        $this->assertEquals('respId', $response->getIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT, $response->getType());
+        $this->assertTrue($response->isSuccess());
+        $this->assertEquals('reqId', $response->getReferenceRequestIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT, $response->getReferenceRequestType());
+        $this->assertEquals('replace description', $response->getDescription());
+        $this->assertNull($response->getScore());
+        $this->assertNull($response->getLanguage());
     }
 
     public function testReplaceResultForPayloadFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Replace result error: Cannot send basic outcome: error');
+        $this->expectExceptionMessage('Replace result error for payload: Provided payload does not contain basic outcome claim');
 
-        $score = 0.5;
-        $language = 'fr';
+        $registration = $this->createTestRegistration();
 
-        $bodyContent = $this->twig->render('basic-outcome/replace-result.xml.twig', [
-            'messageIdentifier' => static::TEST_MESSAGE_ID,
-            'lisResultSourcedId' => static::TEST_SOURCED_ID,
-            'score' => $score,
-            'language' => $language
-        ]);
+        $payload = new LtiMessagePayload(
+            (new MessagePayloadBuilder())
+                ->buildMessagePayload($registration->getToolKeyChain())
+                ->getToken()
+        );
 
-        $this->prepareServiceClientForError($bodyContent);
+        $this->subject->replaceResultForPayload($registration, $payload, 0.42, 'en');
+    }
 
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn($this->basicOutcomeClaim);
+    public function testReplaceResultForPayloadClientFailure(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Replace result error: Cannot send basic outcome: custom error');
 
-        $this->subject->replaceResultForPayload($this->registration, $payload, $score, $language);
+        $registration = $this->createTestRegistration();
+
+        $payload = new LtiMessagePayload(
+            (new MessagePayloadBuilder())
+                ->withClaim(new BasicOutcomeClaim('sourcedId', 'http://platform.com/basic-outcome'))
+                ->buildMessagePayload($registration->getToolKeyChain())
+                ->getToken()
+        );
+
+        $this->prepareClientMockForFailure();
+
+        $this->subject->replaceResultForPayload($registration, $payload, 0.42, 'en');
+    }
+
+    public function testReplaceResultSuccess(): void
+    {
+        $registration = $this->createTestRegistration();
+
+        $boRequest = new BasicOutcomeRequest(
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT,
+            'sourcedId',
+            0.42,
+            'en'
+        );
+
+        $boResponse = new BasicOutcomeResponse(
+            'respId',
+            BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT,
+            true,
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT,
+            'replace description'
+        );
+
+        $this->prepareClientMockForSuccess(
+            $registration,
+            'http://platform.com/basic-outcome',
+            $this->twig->render('request/replaceResultRequest.xml.twig', ['request' => $boRequest]),
+            $this->twig->render('response/replaceResultResponse.xml.twig', ['response' => $boResponse])
+        );
+
+        $response = $this->subject->replaceResult($registration, 'http://platform.com/basic-outcome', 'sourcedId', 0.42, 'en');
+
+        $this->assertInstanceOf(BasicOutcomeResponseInterface::class, $response);
+
+        $this->assertEquals('respId', $response->getIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT, $response->getType());
+        $this->assertTrue($response->isSuccess());
+        $this->assertEquals('reqId', $response->getReferenceRequestIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT, $response->getReferenceRequestType());
+        $this->assertEquals('replace description', $response->getDescription());
+        $this->assertNull($response->getScore());
+        $this->assertNull($response->getLanguage());
+    }
+
+    public function testReplaceResultFailureWithInvalidScore(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Replace result error: Score must be decimal numeric value in the range 0.0 - 1.0');
+
+        $this->subject->replaceResult($this->createTestRegistration(), 'http://platform.com/basic-outcome', 'sourcedId', 42, 'en');
+    }
+
+    public function testReplaceResultFailure(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Replace result error: Cannot send basic outcome: custom error');
+
+        $this->prepareClientMockForFailure();
+
+        $this->subject->replaceResult($this->createTestRegistration(), 'http://platform.com/basic-outcome', 'sourcedId', 0.42, 'en');
     }
 
     public function testDeleteResultForPayloadSuccess(): void
     {
-        $bodyContent = $this->twig->render('basic-outcome/delete-result.xml.twig', [
-            'messageIdentifier' => static::TEST_MESSAGE_ID,
-            'lisResultSourcedId' => static::TEST_SOURCED_ID
-        ]);
+        $registration = $this->createTestRegistration();
 
-        $responseContent = $this->twig->render('delete-result-response.xml.twig', [
-            'refMessageIdentifier' => static::TEST_MESSAGE_ID,
-            'status' => 'success'
-        ]);
-
-        $this->prepareServiceClientForSuccess($bodyContent, $responseContent);
-
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn($this->basicOutcomeClaim);
-
-        $result = $this->subject->deleteResultForPayload($this->registration, $payload);
-
-        $this->assertInstanceOf(BasicOutcomeResultInterface::class, $result);
-        $this->assertTrue($result->isSuccess());
-
-        $crawler = $this->crawlerFactory->create($result);
-        $this->assertEquals(
-            '789',
-            $crawler->filterXPath('//imsx_POXEnvelopeResponse/imsx_POXHeader/imsx_POXResponseHeaderInfo/imsx_messageIdentifier')->text()
+        $payload = new LtiMessagePayload(
+            (new MessagePayloadBuilder())
+                ->withClaim(new BasicOutcomeClaim('sourcedId', 'http://platform.com/basic-outcome'))
+                ->buildMessagePayload($registration->getToolKeyChain())
+                ->getToken()
         );
+
+        $boRequest = new BasicOutcomeRequest(
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_DELETE_RESULT,
+            'sourcedId'
+        );
+
+        $boResponse = new BasicOutcomeResponse(
+            'respId',
+            BasicOutcomeMessageInterface::TYPE_DELETE_RESULT,
+            true,
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_DELETE_RESULT,
+            'delete description'
+        );
+
+        $this->prepareClientMockForSuccess(
+            $registration,
+            'http://platform.com/basic-outcome',
+            $this->twig->render('request/deleteResultRequest.xml.twig', ['request' => $boRequest]),
+            $this->twig->render('response/deleteResultResponse.xml.twig', ['response' => $boResponse])
+        );
+
+        $response = $this->subject->deleteResultForPayload($registration, $payload);
+
+        $this->assertInstanceOf(BasicOutcomeResponseInterface::class, $response);
+
+        $this->assertEquals('respId', $response->getIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_DELETE_RESULT, $response->getType());
+        $this->assertTrue($response->isSuccess());
+        $this->assertEquals('reqId', $response->getReferenceRequestIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_DELETE_RESULT, $response->getReferenceRequestType());
+        $this->assertEquals('delete description', $response->getDescription());
+        $this->assertNull($response->getScore());
+        $this->assertNull($response->getLanguage());
     }
 
-    public function testDeleteResultFotPayloadFailureOnMissingBasicOutcomeClaim(): void
+    public function testDeleteResultForPayloadFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Delete result error for payload: Provided payload does not contain basic outcome claim');
 
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn(null);
+        $registration = $this->createTestRegistration();
 
-        $this->subject->deleteResultForPayload($this->registration, $payload);
+        $payload = new LtiMessagePayload(
+            (new MessagePayloadBuilder())
+                ->buildMessagePayload($registration->getToolKeyChain())
+                ->getToken()
+        );
+
+        $this->subject->deleteResultForPayload($registration, $payload);
     }
 
-    public function testDeleteForPayloadResultFailure(): void
+    public function testDeleteResultForPayloadClientFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Delete result error: Cannot send basic outcome: error');
+        $this->expectExceptionMessage('Delete result error: Cannot send basic outcome: custom error');
 
-        $bodyContent = $this->twig->render('basic-outcome/delete-result.xml.twig', [
-            'messageIdentifier' => static::TEST_MESSAGE_ID,
-            'lisResultSourcedId' => static::TEST_SOURCED_ID,
-        ]);
+        $registration = $this->createTestRegistration();
 
-        $this->prepareServiceClientForError($bodyContent);
+        $payload = new LtiMessagePayload(
+            (new MessagePayloadBuilder())
+                ->withClaim(new BasicOutcomeClaim('sourcedId', 'http://platform.com/basic-outcome'))
+                ->buildMessagePayload($registration->getToolKeyChain())
+                ->getToken()
+        );
 
-        $payload = $this->createMock(LtiMessagePayloadInterface::class);
-        $payload
-            ->expects($this->any())
-            ->method('getBasicOutcome')
-            ->willReturn($this->basicOutcomeClaim);
+        $this->prepareClientMockForFailure();
 
-        $this->subject->deleteResultForPayload($this->registration, $payload);
+        $this->subject->deleteResultForPayload($registration, $payload);
     }
 
-    private function prepareServiceClientForSuccess(string $bodyContent, string $responseContent): void
+    public function testDeleteResultSuccess(): void
     {
-        $this->serviceClientMock
+        $registration = $this->createTestRegistration();
+
+        $boRequest = new BasicOutcomeRequest(
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_DELETE_RESULT,
+            'sourcedId'
+        );
+
+        $boResponse = new BasicOutcomeResponse(
+            'respId',
+            BasicOutcomeMessageInterface::TYPE_DELETE_RESULT,
+            true,
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_DELETE_RESULT,
+            'delete description'
+        );
+
+        $this->prepareClientMockForSuccess(
+            $registration,
+            'http://platform.com/basic-outcome',
+            $this->twig->render('request/deleteResultRequest.xml.twig', ['request' => $boRequest]),
+            $this->twig->render('response/deleteResultResponse.xml.twig', ['response' => $boResponse])
+        );
+
+        $response = $this->subject->deleteResult($registration, 'http://platform.com/basic-outcome', 'sourcedId');
+
+        $this->assertInstanceOf(BasicOutcomeResponseInterface::class, $response);
+
+        $this->assertEquals('respId', $response->getIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_DELETE_RESULT, $response->getType());
+        $this->assertTrue($response->isSuccess());
+        $this->assertEquals('reqId', $response->getReferenceRequestIdentifier());
+        $this->assertEquals(BasicOutcomeMessageInterface::TYPE_DELETE_RESULT, $response->getReferenceRequestType());
+        $this->assertEquals('delete description', $response->getDescription());
+        $this->assertNull($response->getScore());
+        $this->assertNull($response->getLanguage());
+    }
+
+    public function testDeleteResultFailure(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Delete result error: Cannot send basic outcome: custom error');
+
+        $this->prepareClientMockForFailure();
+
+        $this->subject->deleteResult($this->createTestRegistration(), 'http://platform.com/basic-outcome', 'sourcedId');
+    }
+
+    private function prepareClientMockForSuccess(
+        RegistrationInterface $registration,
+        string $requestUrl,
+        string $requestPayload,
+        string $responsePayload
+    ): void {
+        $this->clientMock
             ->expects($this->once())
             ->method('request')
             ->with(
-                $this->registration,
+                $registration,
                 'POST',
-                $this->basicOutcomeClaim->getLisOutcomeServiceUrl(),
-                $this->prepareServiceClientOptions($bodyContent),
+                $requestUrl,
                 [
-                    BasicOutcomeServiceClient::AUTHORIZATION_SCOPE_BASIC_OUTCOME
+                    'headers' => [
+                        'Content-Type' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME,
+                        'Content-Length' => strlen($requestPayload),
+                    ],
+                    'body' => $requestPayload
+                ],
+                [
+                    BasicOutcomeServiceInterface::AUTHORIZATION_SCOPE_BASIC_OUTCOME
                 ]
             )
-            ->willReturn($this->createResponse($responseContent));
+            ->willReturn($this->createResponse($responsePayload));
     }
 
-    private function prepareServiceClientForError(string $bodyContent): void
+    private function prepareClientMockForFailure(): void
     {
-        $this->serviceClientMock
+        $this->clientMock
             ->expects($this->once())
             ->method('request')
-            ->with(
-                $this->registration,
-                'POST',
-                $this->basicOutcomeClaim->getLisOutcomeServiceUrl(),
-                $this->prepareServiceClientOptions($bodyContent),
-                [
-                    BasicOutcomeServiceClient::AUTHORIZATION_SCOPE_BASIC_OUTCOME
-                ]
-            )
-            ->willThrowException(new Exception('error'));
-    }
-
-    private function prepareServiceClientOptions(string $bodyContent): array
-    {
-        return [
-            'headers' => [
-                'Content-Type' => BasicOutcomeServiceClient::CONTENT_TYPE_BASIC_OUTCOME,
-                'Content-Length' => strlen($bodyContent)
-            ],
-            'body' => $bodyContent
-        ];
+            ->willThrowException(new Exception('custom error'));
     }
 }

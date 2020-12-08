@@ -1,6 +1,13 @@
 CHANGELOG
 =========
 
+1.0.0
+-----
+
+* Added platform side of the library
+* Reworked tool side and foundations of the library
+* Updated documentation
+
 0.2.0
 -----
 

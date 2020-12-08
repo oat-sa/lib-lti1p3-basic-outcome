@@ -7,8 +7,7 @@
          colors="true"
 >
     <php>
-        <env name="BASIC_OUTCOME_TEMPLATES_PATH" value="templates" />
-        <env name="TEST_RESPONSE_TEMPLATES_PATH" value="tests/Resources/Templates/Response" />
+        <env name="TEST_KEYS_ROOT_DIR" value="file://vendor/oat-sa/lib-lti1p3-core/tests/Resource/Key" />
     </php>
 
     <testsuites>
