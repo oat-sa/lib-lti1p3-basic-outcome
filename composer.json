@@ -9,7 +9,7 @@
         "oat-sa/lib-lti1p3-core": "^3.3",
         "psr/http-server-handler": "^1.0",
         "ramsey/uuid": "^3.9",
-        "symfony/dom-crawler": "^5.2",
+        "symfony/dom-crawler": "^4.4 || ^5.1",
         "twig/twig": "^3.0"
     },
     "require-dev": {

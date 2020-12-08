@@ -29,7 +29,6 @@ To read a result:
 ```php
 <?php
 
-use OAT\Library\Lti1p3BasicOutcome\Factory\BasicOutcomeResultCrawlerFactory;
 use OAT\Library\Lti1p3BasicOutcome\Service\Client\BasicOutcomeServiceCLient;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationRepositoryInterface;
@@ -44,25 +43,32 @@ $payload  = ...;
 
 $client = new BasicOutcomeServiceCLient();
 
-$result = $client->readResultFromPayload(
+$response = $client->readResultFromPayload(
     $registration, // [required] as the tool, it will call the platform of this registration
     $payload       // [required] from the LTI message payload containing the basic outcome claim result sourced id (got at LTI launch)
 );
 
 // or you also can directly read a result from given URL and result sourced id (avoid claim construction)
-$result = $client->readResult(
+$response = $client->readResult(
     $registration,                         // [required] as the tool, it will call the platform of this registration
     'https://example.com/basic-outcome',   // [required] to a given basic outcome service url
     'resultSourcedId'                      // [required] for a given result sourced id
 );
 
-if ($result->success()) {
-    // you can work directly on the outcome response content
-    $content = $result->getContent();
-  
-    // or use a prepared crawler to ease response processing
-    $crawler = (new BasicOutcomeResultCrawlerFactory())->create($result);
-    $crawler->filterXPath(...); // crawl outcome response
+if ($response->isSuccess()) {
+    // you can access the score
+    $score = $response->getScore();
+
+    // you can access the language
+    $language = $response->getLanguage();
+
+    // you can access the description of the operation
+    $description = $response->getDescription();
+
+    // you can also access if needed basic outcome response metadata
+    $identifier = $response->getIdentifier();
+    $refIdentifier = $response->getReferenceRequestIdentifier();
+    $refType = $response->getReferenceRequestType();
 }
 ```
 
@@ -71,7 +77,6 @@ To replace a result:
 ```php
 <?php
 
-use OAT\Library\Lti1p3BasicOutcome\Factory\BasicOutcomeResultCrawlerFactory;
 use OAT\Library\Lti1p3BasicOutcome\Service\Client\BasicOutcomeServiceCLient;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationRepositoryInterface;
@@ -89,26 +94,27 @@ $client = new BasicOutcomeServiceCLient();
 $result = $client->replaceResultForPayload(
     $registration, // [required] as the tool, it will call the platform of this registration
     $payload,      // [required] for the LTI message payload containing the basic outcome claim result sourced id (got at LTI launch)
-    0.5,           // [required] for a given score
+    0.42,           // [required] for a given score
     'en'           // [optional] for a given language
 );
 
 // or you also can directly replace a result on given URL, result sourced id, score and language (avoid claim construction)
-$result = $client->replaceResult(
+$response = $client->replaceResult(
     $registration,                         // [required] as the tool, it will call the platform of this registration
     'https://example.com/basic-outcome',   // [required] to a given basic outcome service url
     'resultSourcedId',                     // [required] for a given result sourced id
-    0.5,                                   // [required] for a given score
+    0.42,                                   // [required] for a given score
     'en'                                   // [optional] for a given language
 );
 
-if ($result->success()) {
-    // you can work directly on the outcome response content
-    $content = $result->getContent();
-  
-    // or use a prepared crawler to ease response processing
-    $crawler = (new BasicOutcomeResultCrawlerFactory())->create($result);
-    $crawler->filterXPath(...); // crawl outcome response
+if ($response->isSuccess()) {
+    // you can access the description of the operation
+    $description = $response->getDescription();
+
+    // you can also access if needed basic outcome response metadata
+    $identifier = $response->getIdentifier();
+    $refIdentifier = $response->getReferenceRequestIdentifier();
+    $refType = $response->getReferenceRequestType();
 }
 ```
 
@@ -117,7 +123,6 @@ To delete a result:
 ```php
 <?php
 
-use OAT\Library\Lti1p3BasicOutcome\Factory\BasicOutcomeResultCrawlerFactory;
 use OAT\Library\Lti1p3BasicOutcome\Service\Client\BasicOutcomeServiceCLient;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationRepositoryInterface;
@@ -138,18 +143,19 @@ $result = $client->deleteResultForPayload(
 );
 
 // or you also can directly delete a result on given URL and result sourced id (avoid claim construction)
-$result = $client->deleteResult(
+$response = $client->deleteResult(
     $registration,                         // [required] as the tool, it will call the platform of this registration
     'https://example.com/basic-outcome',   // [required] to a given basic outcome service url
     'resultSourcedId'                      // [required] for a given result sourced id
 );
 
-if ($result->success()) {
-    // you can work directly on the outcome response content
-    $content = $result->getContent();
-  
-    // or use a prepared crawler to ease response processing
-    $crawler = (new BasicOutcomeResultCrawlerFactory())->create($result);
-    $crawler->filterXPath(...); // crawl outcome response
+if ($response->isSuccess()) {
+    // you can access the description of the operation
+    $description = $response->getDescription();
+
+    // you can also access if needed basic outcome response metadata
+    $identifier = $response->getIdentifier();
+    $refIdentifier = $response->getReferenceRequestIdentifier();
+    $refType = $response->getReferenceRequestType();
 }
 ```
