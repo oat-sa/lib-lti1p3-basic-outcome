@@ -24,13 +24,22 @@ namespace OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor;
 
 interface BasicOutcomeServiceServerProcessorInterface
 {
+    /**
+     * @see http://www.imsglobal.org/spec/lti-bo/v1p1/#readresult
+     */
     public function processReadResult(string $sourcedId): BasicOutcomeServiceServerProcessorResult;
 
+    /**
+     * @see http://www.imsglobal.org/spec/lti-bo/v1p1/#replaceresult
+     */
     public function processReplaceResult(
         string $sourcedId,
         float $score,
         string $language = 'en'
     ): BasicOutcomeServiceServerProcessorResult;
 
+    /**
+     * @see http://www.imsglobal.org/spec/lti-bo/v1p1/#deleteresult
+     */
     public function processDeleteResult(string $sourcedId): BasicOutcomeServiceServerProcessorResult;
 }

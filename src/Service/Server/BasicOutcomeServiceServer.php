@@ -89,7 +89,7 @@ class BasicOutcomeServiceServer implements BasicOutcomeServiceInterface, Request
 
         try {
             $basicOutcomeResponse = $this->handler->handle(
-                $this->basicOutcomeRequestSerializer->deserialize($request->getBody()->getContents())
+                $this->basicOutcomeRequestSerializer->deserialize((string)$request->getBody())
             );
 
             return $this->httpResponseFactory->createResponse(
