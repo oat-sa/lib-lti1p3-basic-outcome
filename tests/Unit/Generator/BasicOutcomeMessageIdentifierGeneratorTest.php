@@ -20,21 +20,23 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Tests\Traits;
+namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Generator;
 
-use Twig\Environment;
-use Twig\Loader\FilesystemLoader;
+use OAT\Library\Lti1p3BasicOutcome\Generator\BasicOutcomeMessageIdentifierGenerator;
+use PHPUnit\Framework\TestCase;
 
-trait TwigTestingTrait
+class BasicOutcomeMessageIdentifierGeneratorTest extends TestCase
 {
-    /** @var Environment */
-    private $twig;
-
-    private function setUpTwig(): void
+    public function testItGeneratesUniqueIdentifiers(): void
     {
-        $this->twig = new Environment(new FilesystemLoader([
-            getenv('BASIC_OUTCOME_TEMPLATES_PATH'),
-            getenv('TEST_RESPONSE_TEMPLATES_PATH')
-        ]));
+        $subject = new BasicOutcomeMessageIdentifierGenerator();
+
+        $result1 = $subject->generate();
+        $result2 = $subject->generate();
+        $result3 = $subject->generate();
+
+        $this->assertNotEquals($result1, $result2);
+        $this->assertNotEquals($result1, $result3);
+        $this->assertNotEquals($result2, $result3);
     }
 }

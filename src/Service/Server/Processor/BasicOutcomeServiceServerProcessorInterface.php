@@ -26,7 +26,11 @@ interface BasicOutcomeServiceServerProcessorInterface
 {
     public function processReadResult(string $sourcedId): BasicOutcomeServiceServerProcessorResult;
 
-    public function processReplaceResult(string $sourcedId, float $score, string $language = 'en'): BasicOutcomeServiceServerProcessorResult;
+    public function processReplaceResult(
+        string $sourcedId,
+        float $score,
+        string $language = 'en'
+    ): BasicOutcomeServiceServerProcessorResult;
 
     public function processDeleteResult(string $sourcedId): BasicOutcomeServiceServerProcessorResult;
 }
