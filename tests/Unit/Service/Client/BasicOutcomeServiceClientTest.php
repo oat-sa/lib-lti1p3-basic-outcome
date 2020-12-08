@@ -75,7 +75,7 @@ class BasicOutcomeServiceClientTest extends TestCase
         );
     }
 
-    public function testReadResultFromPayloadSuccess(): void
+    public function testReadResultForPayloadSuccess(): void
     {
         $registration = $this->createTestRegistration();
 
@@ -110,7 +110,7 @@ class BasicOutcomeServiceClientTest extends TestCase
             $this->twig->render('response/readResultResponse.xml.twig', ['response' => $boResponse])
         );
 
-        $response = $this->subject->readResultFromPayload($registration, $payload);
+        $response = $this->subject->readResultForPayload($registration, $payload);
 
         $this->assertInstanceOf(BasicOutcomeResponseInterface::class, $response);
 
@@ -124,10 +124,10 @@ class BasicOutcomeServiceClientTest extends TestCase
         $this->assertEquals('en', $response->getLanguage());
     }
 
-    public function testReadResultFromPayloadFailure(): void
+    public function testReadResultForPayloadFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Read result error from payload: Provided payload does not contain basic outcome claim');
+        $this->expectExceptionMessage('Read result error for payload: Provided payload does not contain basic outcome claim');
 
         $registration = $this->createTestRegistration();
 
@@ -137,10 +137,10 @@ class BasicOutcomeServiceClientTest extends TestCase
                 ->getToken()
         );
 
-        $this->subject->readResultFromPayload($registration, $payload);
+        $this->subject->readResultForPayload($registration, $payload);
     }
 
-    public function testReadResultFromPayloadClientFailure(): void
+    public function testReadResultForPayloadClientFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
         $this->expectExceptionMessage('Read result error: Cannot send basic outcome: custom error');
@@ -156,7 +156,7 @@ class BasicOutcomeServiceClientTest extends TestCase
 
         $this->prepareClientMockForFailure();
 
-        $this->subject->readResultFromPayload($registration, $payload);
+        $this->subject->readResultForPayload($registration, $payload);
     }
 
     public function testReadResultSuccess(): void

@@ -73,7 +73,7 @@ class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
      * @see https://www.imsglobal.org/spec/lti-bo/v1p1#readresult
      * @throws LtiExceptionInterface
      */
-    public function readResultFromPayload(
+    public function readResultForPayload(
         RegistrationInterface $registration,
         LtiMessagePayloadInterface $payload
     ): BasicOutcomeResponseInterface {
@@ -92,7 +92,7 @@ class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
             throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
-                sprintf('Read result error from payload: %s', $exception->getMessage()),
+                sprintf('Read result error for payload: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );

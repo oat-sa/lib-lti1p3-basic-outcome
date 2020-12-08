@@ -9,17 +9,17 @@
 
 ## Features
 
-This library provides a [ScoreServiceClient](../../src/Service/Score/Client/ScoreServiceClient.php) (based on the [core service client](https://github.com/oat-sa/lib-lti1p3-core/blob/master/doc/service/service-client.md)) that allow the following outcome operations:
+This library provides a [BasicOutcomeServiceClient](../src/Service/Client/BasicOutcomeServiceClient.php) (based on the [core service client](https://github.com/oat-sa/lib-lti1p3-core/blob/master/doc/service/service-client.md)) that allow the following outcome operations:
 - [read result](https://www.imsglobal.org/spec/lti-bo/v1p1#readresult)
 - [replace result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult)
 - [delete result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult)
 
 You can use:
-- `readResultFromPayload()` to [read a result](https://www.imsglobal.org/spec/lti-bo/v1p1#readresult) from a received LTI message payload (will use basic outcome claim)
+- `readResultForPayload()` to [read a result](https://www.imsglobal.org/spec/lti-bo/v1p1#readresult) for a received LTI message payload (will use basic outcome claim)
 - `readResult()` to [read a result](https://www.imsglobal.org/spec/lti-bo/v1p1#readresult) from a given basic outcome url and result sourced id
-- `replaceResultFromPayload()` to [replace a result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult) from a received LTI message payload (will use basic outcome claim), with given score and language
+- `replaceResultForPayload()` to [replace a result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult) for a received LTI message payload (will use basic outcome claim), with given score and language
 - `replaceResult()` to [replace a result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult) for a given basic outcome url, result sourced id, score and language
-- `deleteResultFromPayload()` to [delete a result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult) from a received LTI message payload (will use basic outcome claim)
+- `deleteResultForPayload()` to [delete a result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult) for a received LTI message payload (will use basic outcome claim)
 - `deleteResult()` to [delete a result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult) for a given basic outcome url and result sourced id
 
 ## Usage
@@ -43,7 +43,7 @@ $payload  = ...;
 
 $client = new BasicOutcomeServiceCLient();
 
-$response = $client->readResultFromPayload(
+$response = $client->replaceResultForPayload(
     $registration, // [required] as the tool, it will call the platform of this registration
     $payload       // [required] from the LTI message payload containing the basic outcome claim result sourced id (got at LTI launch)
 );
