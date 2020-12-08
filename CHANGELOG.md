@@ -6,6 +6,7 @@ CHANGELOG
 
 * Added platform side of the library
 * Reworked tool side and foundations of the library
+* Upgraded for oat-sa/lib-lti1p3-core version 3.3
 * Updated documentation
 
 0.2.0
