@@ -91,7 +91,7 @@ $payload  = ...;
 
 $client = new BasicOutcomeServiceCLient();
 
-$result = $client->replaceResultForPayload(
+$response = $client->replaceResultForPayload(
     $registration, // [required] as the tool, it will call the platform of this registration
     $payload,      // [required] for the LTI message payload containing the basic outcome claim result sourced id (got at LTI launch)
     0.42,          // [required] for a given score
@@ -137,7 +137,7 @@ $payload  = ...;
 
 $client = new BasicOutcomeServiceCLient();
 
-$result = $client->deleteResultForPayload(
+$response = $client->deleteResultForPayload(
     $registration, // [required] as the tool, it will call the platform of this registration
     $payload       // [required] for the LTI message payload containing the basic outcome claim result sourced id (got at LTI launch)
 );
