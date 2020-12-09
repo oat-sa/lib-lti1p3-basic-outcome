@@ -43,7 +43,7 @@ $payload  = ...;
 
 $client = new BasicOutcomeServiceCLient();
 
-$response = $client->replaceResultForPayload(
+$response = $client->readResultForPayload(
     $registration, // [required] as the tool, it will call the platform of this registration
     $payload       // [required] from the LTI message payload containing the basic outcome claim result sourced id (got at LTI launch)
 );
