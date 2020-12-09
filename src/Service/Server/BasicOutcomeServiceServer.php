@@ -87,16 +87,29 @@ class BasicOutcomeServiceServer implements BasicOutcomeServiceInterface, Request
             return $this->httpResponseFactory->createResponse(401, null, [], $validationResult->getError());
         }
 
+        if (false === strpos($request->getHeaderLine('Accept'), static::CONTENT_TYPE_BASIC_OUTCOME)) {
+            $message = sprintf('Not acceptable, accepts: %s', static::CONTENT_TYPE_BASIC_OUTCOME);
+
+            $this->logger->error($message);
+
+            return $this->httpResponseFactory->createResponse(406, null, [], $message);
+        }
+
         try {
             $basicOutcomeResponse = $this->handler->handle(
                 $this->basicOutcomeRequestSerializer->deserialize((string)$request->getBody())
             );
 
+            $responseBody = $this->basicOutcomeResponseSerializer->serialize($basicOutcomeResponse);
+
             return $this->httpResponseFactory->createResponse(
                 200,
                 null,
-                [],
-                $this->basicOutcomeResponseSerializer->serialize($basicOutcomeResponse)
+                [
+                    'Content-Type' => static::CONTENT_TYPE_BASIC_OUTCOME,
+                    'Content-Length' => strlen($responseBody),
+                ],
+                $responseBody
             );
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
