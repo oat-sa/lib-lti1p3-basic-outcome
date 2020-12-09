@@ -25,7 +25,7 @@ First, you need to provide a [BasicOutcomeServiceServerProcessorInterface](../sr
 use OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\BasicOutcomeServiceServerProcessorInterface;
 use OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\BasicOutcomeServiceServerProcessorResult;
 
-/** @var BasicOutcomeServiceServerProcessorInterface $builder */
+/** @var BasicOutcomeServiceServerProcessorInterface $processor */
 $processor = new class() implements BasicOutcomeServiceServerProcessorInterface 
 {
     public function processReadResult(string $sourcedId) : BasicOutcomeServiceServerProcessorResult
@@ -55,12 +55,16 @@ To finally expose it to requests:
 
 use OAT\Library\Lti1p3BasicOutcome\Service\Server\BasicOutcomeServiceServer;
 use OAT\Library\Lti1p3BasicOutcome\Service\Server\Handler\BasicOutcomeServiceServerHandler;
+use OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\BasicOutcomeServiceServerProcessorInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationRepositoryInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidator;
 use Psr\Http\Message\ServerRequestInterface;
 
 /** @var RegistrationRepositoryInterface $repository */
 $repository = ...
+
+/** @var BasicOutcomeServiceServerProcessorInterface $processor */
+$processor = ...
 
 $validator = new AccessTokenRequestValidator($repository);
 
