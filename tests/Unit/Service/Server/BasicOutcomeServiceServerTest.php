@@ -28,6 +28,7 @@ use OAT\Library\Lti1p3BasicOutcome\Message\BasicOutcomeMessageInterface;
 use OAT\Library\Lti1p3BasicOutcome\Message\Request\BasicOutcomeRequest;
 use OAT\Library\Lti1p3BasicOutcome\Message\Response\BasicOutcomeResponse;
 use OAT\Library\Lti1p3BasicOutcome\Serializer\Response\BasicOutcomeResponseSerializer;
+use OAT\Library\Lti1p3BasicOutcome\Service\BasicOutcomeServiceInterface;
 use OAT\Library\Lti1p3BasicOutcome\Service\Server\BasicOutcomeServiceServer;
 use OAT\Library\Lti1p3BasicOutcome\Service\Server\Handler\BasicOutcomeServiceServerHandler;
 use OAT\Library\Lti1p3Core\Service\Server\Validator\AccessTokenRequestValidationResult;
@@ -103,7 +104,9 @@ class BasicOutcomeServiceServerTest extends TestCase
         $request = new ServerRequest(
             'POST',
             'http://platform.com/basic-outcome',
-            [],
+            [
+                'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+            ],
             $this->twig->render('request/readResultRequest.xml.twig', ['request' => $boRequest])
         );
 
@@ -135,7 +138,10 @@ class BasicOutcomeServiceServerTest extends TestCase
 
         $request = new ServerRequest(
             'POST',
-            'http://platform.com/basic-outcome'
+            'http://platform.com/basic-outcome',
+            [
+                'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+            ]
         );
 
         $this->validatorMock
@@ -149,6 +155,41 @@ class BasicOutcomeServiceServerTest extends TestCase
         $this->assertEquals(401, $response->getStatusCode());
         $this->assertEquals('auth error', (string)$response->getBody());
         $this->assertTrue($this->logger->hasLog('error', 'auth error'));
+    }
+
+    public function testHandlingFailureOnNotAcceptableContentType(): void
+    {
+        $registration = $this->createTestRegistration();
+        $validationResult = new AccessTokenRequestValidationResult($registration);
+
+        $boRequest = new BasicOutcomeRequest(
+            'reqId',
+            BasicOutcomeMessageInterface::TYPE_READ_RESULT,
+            'sourcedId'
+        );
+
+        $request = new ServerRequest(
+            'POST',
+            'http://platform.com/basic-outcome',
+            [
+                'Accept' => 'invalid'
+            ],
+            $this->twig->render('request/readResultRequest.xml.twig', ['request' => $boRequest])
+        );
+
+        $this->validatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->with($request)
+            ->willReturn($validationResult);
+
+        $response = $this->subject->handle($request);
+
+        $this->assertEquals(406, $response->getStatusCode());
+
+        $message = sprintf('Not acceptable, accepts: %s', BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME);
+        $this->assertEquals($message, (string)$response->getBody());
+        $this->assertTrue($this->logger->hasLog('error', $message));
     }
 
     public function testHandlingFailureOnGenericError(): void
@@ -165,7 +206,9 @@ class BasicOutcomeServiceServerTest extends TestCase
         $request = new ServerRequest(
             'POST',
             'http://platform.com/basic-outcome',
-            [],
+            [
+                'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+            ],
             $this->twig->render('request/readResultRequest.xml.twig', ['request' => $boRequest])
         );
 
