@@ -159,9 +159,6 @@ class BasicOutcomeServiceServerTest extends TestCase
 
     public function testHandlingFailureOnNotAcceptableContentType(): void
     {
-        $registration = $this->createTestRegistration();
-        $validationResult = new AccessTokenRequestValidationResult($registration);
-
         $boRequest = new BasicOutcomeRequest(
             'reqId',
             BasicOutcomeMessageInterface::TYPE_READ_RESULT,
@@ -178,10 +175,8 @@ class BasicOutcomeServiceServerTest extends TestCase
         );
 
         $this->validatorMock
-            ->expects($this->once())
-            ->method('validate')
-            ->with($request)
-            ->willReturn($validationResult);
+            ->expects($this->never())
+            ->method('validate');
 
         $response = $this->subject->handle($request);
 

@@ -79,20 +79,20 @@ class BasicOutcomeServiceServer implements BasicOutcomeServiceInterface, Request
 
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        $validationResult = $this->validator->validate($request);
-
-        if ($validationResult->hasError()) {
-            $this->logger->error($validationResult->getError());
-
-            return $this->httpResponseFactory->createResponse(401, null, [], $validationResult->getError());
-        }
-
         if (false === strpos($request->getHeaderLine('Accept'), static::CONTENT_TYPE_BASIC_OUTCOME)) {
             $message = sprintf('Not acceptable, accepts: %s', static::CONTENT_TYPE_BASIC_OUTCOME);
 
             $this->logger->error($message);
 
             return $this->httpResponseFactory->createResponse(406, null, [], $message);
+        }
+
+        $validationResult = $this->validator->validate($request);
+
+        if ($validationResult->hasError()) {
+            $this->logger->error($validationResult->getError());
+
+            return $this->httpResponseFactory->createResponse(401, null, [], $validationResult->getError());
         }
 
         try {
