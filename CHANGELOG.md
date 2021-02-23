@@ -1,6 +1,14 @@
 CHANGELOG
 =========
 
+2.0.0
+-----
+
+* Added PHP 8 support (and kept >=7.2)
+* Updated oat-sa/lib-lti1p3-core dependency to version 4.0
+* Removed library generator usage in favor of core's one
+* Updated documentation
+
 1.0.0
 -----
 

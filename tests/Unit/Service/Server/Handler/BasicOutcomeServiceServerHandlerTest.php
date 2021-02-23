@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Service\Server\Handler;
 
 use OAT\Library\Lti1p3BasicOutcome\Factory\Response\BasicOutcomeResponseFactory;
-use OAT\Library\Lti1p3BasicOutcome\Generator\BasicOutcomeMessageIdentifierGeneratorInterface;
 use OAT\Library\Lti1p3BasicOutcome\Message\BasicOutcomeMessageInterface;
 use OAT\Library\Lti1p3BasicOutcome\Message\Request\BasicOutcomeRequest;
 use OAT\Library\Lti1p3BasicOutcome\Message\Response\BasicOutcomeResponseInterface;
@@ -31,6 +30,7 @@ use OAT\Library\Lti1p3BasicOutcome\Service\Server\Handler\BasicOutcomeServiceSer
 use OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\BasicOutcomeServiceServerProcessorInterface;
 use OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\BasicOutcomeServiceServerProcessorResult;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Util\Generator\IdGeneratorInterface;
 use PHPUnit\Framework\TestCase;
 
 class BasicOutcomeServiceServerHandlerTest extends TestCase
@@ -40,7 +40,7 @@ class BasicOutcomeServiceServerHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $generatorMock = $this->createMock(BasicOutcomeMessageIdentifierGeneratorInterface::class);
+        $generatorMock = $this->createMock(IdGeneratorInterface::class);
         $generatorMock
             ->expects($this->any())
             ->method('generate')

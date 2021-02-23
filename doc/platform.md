@@ -33,7 +33,7 @@ $processor = new class() implements BasicOutcomeServiceServerProcessorInterface
         // Logic for readResult basic outcome operations
     }
 
-    public function processReplaceResult(string $sourcedId,float $score,string $language = 'en') : BasicOutcomeServiceServerProcessorResult
+    public function processReplaceResult(string $sourcedId, float $score, string $language = 'en') : BasicOutcomeServiceServerProcessorResult
     {
         // Logic for replaceResult basic outcome operations
     }
