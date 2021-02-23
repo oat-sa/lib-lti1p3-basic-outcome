@@ -22,16 +22,16 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3BasicOutcome\Factory;
 
-use OAT\Library\Lti1p3BasicOutcome\Generator\BasicOutcomeMessageIdentifierGenerator;
-use OAT\Library\Lti1p3BasicOutcome\Generator\BasicOutcomeMessageIdentifierGeneratorInterface;
+use OAT\Library\Lti1p3Core\Util\Generator\IdGenerator;
+use OAT\Library\Lti1p3Core\Util\Generator\IdGeneratorInterface;
 
 abstract class AbstractBasicOutcomeMessageFactory
 {
-    /** @var BasicOutcomeMessageIdentifierGeneratorInterface */
+    /** @var IdGeneratorInterface */
     protected $generator;
 
-    public function __construct(BasicOutcomeMessageIdentifierGeneratorInterface $generator = null)
+    public function __construct(IdGeneratorInterface $generator = null)
     {
-        $this->generator = $generator ?? new BasicOutcomeMessageIdentifierGenerator();
+        $this->generator = $generator ?? new IdGenerator();
     }
 }
