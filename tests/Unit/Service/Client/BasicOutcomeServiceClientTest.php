@@ -24,7 +24,6 @@ namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Service\Client;
 
 use Exception;
 use OAT\Library\Lti1p3BasicOutcome\Factory\Request\BasicOutcomeRequestFactory;
-use OAT\Library\Lti1p3BasicOutcome\Generator\BasicOutcomeMessageIdentifierGeneratorInterface;
 use OAT\Library\Lti1p3BasicOutcome\Message\BasicOutcomeMessageInterface;
 use OAT\Library\Lti1p3BasicOutcome\Message\Request\BasicOutcomeRequest;
 use OAT\Library\Lti1p3BasicOutcome\Message\Response\BasicOutcomeResponse;
@@ -39,6 +38,7 @@ use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
 use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
 use OAT\Library\Lti1p3Core\Tests\Traits\NetworkTestingTrait;
+use OAT\Library\Lti1p3Core\Util\Generator\IdGeneratorInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Twig\Environment;
@@ -60,7 +60,7 @@ class BasicOutcomeServiceClientTest extends TestCase
 
     protected function setUp(): void
     {
-        $generatorMock = $this->createMock(BasicOutcomeMessageIdentifierGeneratorInterface::class);
+        $generatorMock = $this->createMock(IdGeneratorInterface::class);
         $generatorMock
             ->expects($this->any())
             ->method('generate')

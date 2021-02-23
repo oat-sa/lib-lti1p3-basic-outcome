@@ -24,8 +24,8 @@ namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Factory\Request;
 
 use OAT\Library\Lti1p3BasicOutcome\Factory\Request\BasicOutcomeRequestFactory;
 use OAT\Library\Lti1p3BasicOutcome\Factory\Request\BasicOutcomeRequestFactoryInterface;
-use OAT\Library\Lti1p3BasicOutcome\Generator\BasicOutcomeMessageIdentifierGeneratorInterface;
 use OAT\Library\Lti1p3BasicOutcome\Message\Request\BasicOutcomeRequestInterface;
+use OAT\Library\Lti1p3Core\Util\Generator\IdGeneratorInterface;
 use PHPUnit\Framework\TestCase;
 
 class BasicOutcomeRequestFactoryTest extends TestCase
@@ -37,7 +37,7 @@ class BasicOutcomeRequestFactoryTest extends TestCase
 
     public function testCreate(): void
     {
-        $generatorMock = $this->createMock(BasicOutcomeMessageIdentifierGeneratorInterface::class);
+        $generatorMock = $this->createMock(IdGeneratorInterface::class);
         $generatorMock
             ->expects($this->once())
             ->method('generate')
