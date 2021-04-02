@@ -70,7 +70,6 @@ class BasicOutcomeServiceServerRequestHandler implements LtiServiceServerRequest
         $this->httpResponseFactory = $httpResponseFactory ?? new HttplugFactory();
     }
 
-
     public function getServiceName(): string
     {
         return static::NAME;
