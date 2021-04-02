@@ -68,7 +68,11 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->twig = new Environment(new FilesystemLoader(__DIR__ . '/../../../../../templates'));
+        $this->twig = new Environment(new FilesystemLoader([
+            __DIR__ . '/../../../../../templates',
+            __DIR__ . '/../../../../Resources/templates',
+        ]));
+
         $this->logger = new TestLogger();
 
         $this->validatorMock = $this->createMock(RequestAccessTokenValidator::class);
@@ -303,7 +307,7 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             [
                 'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
             ],
-            $this->twig->render('request/invalid/invalidReadResultRequest.xml.twig', ['request' => $boRequest])
+            $this->twig->render('request/invalidRequest.xml.twig', ['request' => $boRequest])
         );
 
         $this->validatorMock
