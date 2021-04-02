@@ -78,14 +78,16 @@ class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
         LtiMessagePayloadInterface $payload
     ): BasicOutcomeResponseInterface {
         try {
-            if (null === $payload->getBasicOutcome()) {
+            $basicOutcomeClaim = $payload->getBasicOutcome();
+
+            if (null === $basicOutcomeClaim) {
                 throw new InvalidArgumentException('Provided payload does not contain basic outcome claim');
             }
 
             return $this->readResult(
                 $registration,
-                $payload->getBasicOutcome()->getLisOutcomeServiceUrl(),
-                $payload->getBasicOutcome()->getLisResultSourcedId()
+                $basicOutcomeClaim->getLisOutcomeServiceUrl(),
+                $basicOutcomeClaim->getLisResultSourcedId()
             );
 
         } catch (LtiExceptionInterface $exception) {
@@ -140,14 +142,16 @@ class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
         string $language = 'en'
     ): BasicOutcomeResponseInterface {
         try {
-            if (null === $payload->getBasicOutcome()) {
+            $basicOutcomeClaim = $payload->getBasicOutcome();
+
+            if (null === $basicOutcomeClaim) {
                 throw new InvalidArgumentException('Provided payload does not contain basic outcome claim');
             }
 
             return $this->replaceResult(
                 $registration,
-                $payload->getBasicOutcome()->getLisOutcomeServiceUrl(),
-                $payload->getBasicOutcome()->getLisResultSourcedId(),
+                $basicOutcomeClaim->getLisOutcomeServiceUrl(),
+                $basicOutcomeClaim->getLisResultSourcedId(),
                 $score,
                 $language
             );
@@ -210,14 +214,16 @@ class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
         LtiMessagePayloadInterface $payload
     ): BasicOutcomeResponseInterface {
         try {
-            if (null === $payload->getBasicOutcome()) {
+            $basicOutcomeClaim = $payload->getBasicOutcome();
+
+            if (null === $basicOutcomeClaim) {
                 throw new InvalidArgumentException('Provided payload does not contain basic outcome claim');
             }
 
             return $this->deleteResult(
                 $registration,
-                $payload->getBasicOutcome()->getLisOutcomeServiceUrl(),
-                $payload->getBasicOutcome()->getLisResultSourcedId()
+                $basicOutcomeClaim->getLisOutcomeServiceUrl(),
+                $basicOutcomeClaim->getLisResultSourcedId()
             );
 
         } catch (LtiExceptionInterface $exception) {
