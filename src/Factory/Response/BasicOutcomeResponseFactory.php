@@ -33,10 +33,10 @@ class BasicOutcomeResponseFactory extends AbstractBasicOutcomeMessageFactory imp
         bool $success,
         string $referenceRequestIdentifier,
         string $referenceRequestType,
-        string $description = null,
-        float $score = null,
-        string $language =  null,
-        string $identifier = null
+        ?string $description = null,
+        ?float $score = null,
+        ?string $language =  null,
+        ?string $identifier = null
     ): BasicOutcomeResponseInterface {
         return new BasicOutcomeResponse(
             $identifier ?? $this->generator->generate(),

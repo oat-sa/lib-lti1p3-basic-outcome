@@ -36,8 +36,8 @@ use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClient;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClient;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use Throwable;
 
 /**
@@ -45,7 +45,7 @@ use Throwable;
  */
 class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
 {
-    /** @var ServiceClientInterface */
+    /** @var LtiServiceClientInterface */
     private $client;
 
     /** @var BasicOutcomeRequestFactoryInterface */
@@ -58,12 +58,12 @@ class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
     private $responseSerializer;
 
     public function __construct(
-        ServiceClientInterface $client = null,
-        BasicOutcomeRequestFactoryInterface $factory = null,
-        BasicOutcomeRequestSerializerInterface $requestSerializer = null,
-        BasicOutcomeResponseSerializerInterface $responseSerializer = null
+        ?LtiServiceClientInterface $client = null,
+        ?BasicOutcomeRequestFactoryInterface $factory = null,
+        ?BasicOutcomeRequestSerializerInterface $requestSerializer = null,
+        ?BasicOutcomeResponseSerializerInterface $responseSerializer = null
     ) {
-        $this->client = $client ?? new ServiceClient();
+        $this->client = $client ?? new LtiServiceClient();
         $this->factory = $factory ?? new BasicOutcomeRequestFactory();
         $this->requestSerializer = $requestSerializer ?? new BasicOutcomeRequestSerializer();
         $this->responseSerializer = $responseSerializer ?? new BasicOutcomeResponseSerializer();

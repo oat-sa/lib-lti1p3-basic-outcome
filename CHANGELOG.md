@@ -4,6 +4,14 @@ CHANGELOG
 2.0.0
 -----
 
+* Added psalm support
+* Updated oat-sa/lib-lti1p3-core dependency to version 5.0
+* Updated overall constructors to handle nullable parameters
+* Updated documentation
+
+2.0.0
+-----
+
 * Added PHP 8 support (and kept >=7.2)
 * Updated oat-sa/lib-lti1p3-core dependency to version 4.0
 * Removed library generator usage in favor of core's one

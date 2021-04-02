@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor;
+namespace OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\Result;
 
 class BasicOutcomeServiceServerProcessorResult
 {
