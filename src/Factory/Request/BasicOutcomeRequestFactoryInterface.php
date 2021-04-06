@@ -29,8 +29,8 @@ interface BasicOutcomeRequestFactoryInterface
     public function create(
         string $type,
         string $sourcedId,
-        float $score = null,
-        string $language = null,
-        string $identifier = null
+        ?float $score = null,
+        ?string $language = null,
+        ?string $identifier = null
     ): BasicOutcomeRequestInterface;
 }

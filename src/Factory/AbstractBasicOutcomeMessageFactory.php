@@ -30,7 +30,7 @@ abstract class AbstractBasicOutcomeMessageFactory
     /** @var IdGeneratorInterface */
     protected $generator;
 
-    public function __construct(IdGeneratorInterface $generator = null)
+    public function __construct(?IdGeneratorInterface $generator = null)
     {
         $this->generator = $generator ?? new IdGenerator();
     }

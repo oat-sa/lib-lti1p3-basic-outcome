@@ -50,9 +50,9 @@ class BasicOutcomeResponse extends AbstractBasicOutcomeMessage implements BasicO
         bool $success,
         string $referenceRequestIdentifier,
         string $referenceRequestType,
-        string $description = null,
-        float $score = null,
-        string $language =  null
+        ?string $description = null,
+        ?float $score = null,
+        ?string $language =  null
     ) {
         parent::__construct($identifier, $type);
 

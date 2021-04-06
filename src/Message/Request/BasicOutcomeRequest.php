@@ -39,8 +39,8 @@ class BasicOutcomeRequest extends AbstractBasicOutcomeMessage implements BasicOu
         string $identifier,
         string $type,
         string $sourcedId,
-        float $score = null,
-        string $language = null
+        ?float $score = null,
+        ?string $language = null
     ) {
         parent::__construct($identifier, $type);
 
