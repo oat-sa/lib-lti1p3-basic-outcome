@@ -34,7 +34,7 @@ abstract class AbstractBasicOutcomeMessageSerializer
     /** @var Crawler */
     protected $crawler;
 
-    public function __construct(Environment $twig = null, Crawler $crawler = null)
+    public function __construct(?Environment $twig = null, ?Crawler $crawler = null)
     {
         $this->twig = $twig ?? new Environment(new FilesystemLoader(__DIR__ . '/../../templates'));
         $this->crawler = $crawler ?? new Crawler();

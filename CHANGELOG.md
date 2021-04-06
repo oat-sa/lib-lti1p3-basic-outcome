@@ -1,6 +1,16 @@
 CHANGELOG
 =========
 
+3.0.0
+-----
+
+* Added psalm support
+* Deleted BasicOutcomeServiceServer in favor to BasicOutcomeServiceServerRequestHandler (to be used with core LtiServiceServer)
+* Updated oat-sa/lib-lti1p3-core dependency to version 5.0
+* Updated BasicOutcomeServiceServerProcessorInterface methods parameters to work with registration
+* Updated overall constructors to handle nullable parameters
+* Updated documentation
+
 2.0.0
 -----
 

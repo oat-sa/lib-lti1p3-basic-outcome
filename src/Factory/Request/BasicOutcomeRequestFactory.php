@@ -31,9 +31,9 @@ class BasicOutcomeRequestFactory extends AbstractBasicOutcomeMessageFactory impl
     public function create(
         string $type,
         string $sourcedId,
-        float $score = null,
-        string $language = null,
-        string $identifier = null
+        ?float $score = null,
+        ?string $language = null,
+        ?string $identifier = null
     ): BasicOutcomeRequestInterface {
         return new BasicOutcomeRequest(
             $identifier ?? $this->generator->generate(),

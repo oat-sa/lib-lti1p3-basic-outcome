@@ -20,9 +20,9 @@
 
 declare(strict_types=1);
 
-namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Service\Server\Processor;
+namespace OAT\Library\Lti1p3BasicOutcome\Tests\Unit\Service\Server\Processor\Result;
 
-use OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\BasicOutcomeServiceServerProcessorResult;
+use OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\Result\BasicOutcomeServiceServerProcessorResult;
 use PHPUnit\Framework\TestCase;
 
 class BasicOutcomeServiceServerProcessorResultTest extends TestCase

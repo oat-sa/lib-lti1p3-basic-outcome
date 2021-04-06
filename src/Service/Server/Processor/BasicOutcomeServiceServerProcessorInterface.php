@@ -22,17 +22,24 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor;
 
+use OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\Result\BasicOutcomeServiceServerProcessorResult;
+use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
+
 interface BasicOutcomeServiceServerProcessorInterface
 {
     /**
      * @see http://www.imsglobal.org/spec/lti-bo/v1p1/#readresult
      */
-    public function processReadResult(string $sourcedId): BasicOutcomeServiceServerProcessorResult;
+    public function processReadResult(
+        RegistrationInterface $registration,
+        string $sourcedId
+    ): BasicOutcomeServiceServerProcessorResult;
 
     /**
      * @see http://www.imsglobal.org/spec/lti-bo/v1p1/#replaceresult
      */
     public function processReplaceResult(
+        RegistrationInterface $registration,
         string $sourcedId,
         float $score,
         string $language = 'en'
@@ -41,5 +48,8 @@ interface BasicOutcomeServiceServerProcessorInterface
     /**
      * @see http://www.imsglobal.org/spec/lti-bo/v1p1/#deleteresult
      */
-    public function processDeleteResult(string $sourcedId): BasicOutcomeServiceServerProcessorResult;
+    public function processDeleteResult(
+        RegistrationInterface $registration,
+        string $sourcedId
+    ): BasicOutcomeServiceServerProcessorResult;
 }

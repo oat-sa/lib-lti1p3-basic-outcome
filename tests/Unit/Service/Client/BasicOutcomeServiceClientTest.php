@@ -35,7 +35,7 @@ use OAT\Library\Lti1p3Core\Message\Payload\Builder\MessagePayloadBuilder;
 use OAT\Library\Lti1p3Core\Message\Payload\Claim\BasicOutcomeClaim;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayload;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
-use OAT\Library\Lti1p3Core\Service\Client\ServiceClientInterface;
+use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
 use OAT\Library\Lti1p3Core\Tests\Traits\NetworkTestingTrait;
 use OAT\Library\Lti1p3Core\Util\Generator\IdGeneratorInterface;
@@ -52,7 +52,7 @@ class BasicOutcomeServiceClientTest extends TestCase
     /** @var Environment */
     private $twig;
 
-    /** @var ServiceClientInterface|MockObject */
+    /** @var LtiServiceClientInterface|MockObject */
     private $clientMock;
 
     /** @var BasicOutcomeServiceClient */
@@ -67,7 +67,7 @@ class BasicOutcomeServiceClientTest extends TestCase
             ->willReturn('reqId');
 
         $this->twig = new Environment(new FilesystemLoader(__DIR__ . '/../../../../templates'));
-        $this->clientMock = $this->createMock(ServiceClientInterface::class);
+        $this->clientMock = $this->createMock(LtiServiceClientInterface::class);
 
         $this->subject = new BasicOutcomeServiceClient(
             $this->clientMock,

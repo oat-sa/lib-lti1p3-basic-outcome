@@ -24,6 +24,7 @@ namespace OAT\Library\Lti1p3BasicOutcome\Service;
 
 interface BasicOutcomeServiceInterface
 {
+    public const NAME = 'basic-outcome';
     public const AUTHORIZATION_SCOPE_BASIC_OUTCOME = 'https://purl.imsglobal.org/spec/lti-bo/scope/basicoutcome';
     public const CONTENT_TYPE_BASIC_OUTCOME = 'application/vnd.ims.lti.v1.outcome+xml';
 }

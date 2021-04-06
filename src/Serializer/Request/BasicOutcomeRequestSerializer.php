@@ -38,9 +38,9 @@ class BasicOutcomeRequestSerializer extends AbstractBasicOutcomeMessageSerialize
     private $factory;
 
     public function __construct(
-        BasicOutcomeRequestFactoryInterface $factory = null,
-        Environment $twig = null,
-        Crawler $crawler = null
+        ?BasicOutcomeRequestFactoryInterface $factory = null,
+        ?Environment $twig = null,
+        ?Crawler $crawler = null
     ) {
         parent::__construct($twig, $crawler);
 

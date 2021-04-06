@@ -9,7 +9,7 @@
 
 ## Features
 
-This library provides a [BasicOutcomeServiceClient](../src/Service/Client/BasicOutcomeServiceClient.php) (based on the [core service client](https://github.com/oat-sa/lib-lti1p3-core/blob/master/doc/service/service-client.md)) that allow the following outcome operations:
+This library provides a [BasicOutcomeServiceClient](../src/Service/Client/BasicOutcomeServiceClient.php) (based on the [LtiServiceClient](https://github.com/oat-sa/lib-lti1p3-core/blob/master/doc/service/service-client.md)) that allow the following outcome operations:
 - [read result](https://www.imsglobal.org/spec/lti-bo/v1p1#readresult)
 - [replace result](https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult)
 - [delete result](https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult)
