@@ -54,10 +54,6 @@ $processor = new class() implements BasicOutcomeServiceServerProcessorInterface
 };
 ```
 
-You can then construct the [BasicOutcomeServiceServer](../src/Service/Server/BasicOutcomeServiceServer.php) with:
-- the [AccessTokenRequestValidator](https://github.com/oat-sa/lib-lti1p3-core/blob/master/src/Service/Server/Validator/AccessTokenRequestValidator.php) (from lti1p3-core)
-- the [BasicOutcomeServiceServerHandler](../src/Service/Server/Handler/BasicOutcomeServiceServerHandler.php) that will use your `BasicOutcomeServiceServerProcessorInterface` implementation
-
 Then:
 - you can construct the [BasicOutcomeServiceServerRequestHandler](../src/Service/Server/Handler/BasicOutcomeServiceServerRequestHandler.php) (constructed with your [BasicOutcomeServiceServerProcessorInterface](../src/Service/Server/Processor/BasicOutcomeServiceServerProcessorInterface.php) implementation)
 - to finally expose it to requests using the core [LtiServiceServer](https://github.com/oat-sa/lib-lti1p3-core/blob/master/src/Service/Server/LtiServiceServer.php) (constructed with the [RequestAccessTokenValidator](https://github.com/oat-sa/lib-lti1p3-core/blob/master/src/Security/OAuth2/Validator/RequestAccessTokenValidator.php), from core library)

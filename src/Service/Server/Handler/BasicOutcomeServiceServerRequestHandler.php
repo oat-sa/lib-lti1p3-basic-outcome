@@ -34,7 +34,7 @@ use OAT\Library\Lti1p3BasicOutcome\Serializer\Response\BasicOutcomeResponseSeria
 use OAT\Library\Lti1p3BasicOutcome\Serializer\Response\BasicOutcomeResponseSerializerInterface;
 use OAT\Library\Lti1p3BasicOutcome\Service\BasicOutcomeServiceInterface;
 use OAT\Library\Lti1p3BasicOutcome\Service\Server\Processor\BasicOutcomeServiceServerProcessorInterface;
-use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
+use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenValidationResultInterface;
 use OAT\Library\Lti1p3Core\Service\Server\Handler\LtiServiceServerRequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -94,10 +94,12 @@ class BasicOutcomeServiceServerRequestHandler implements LtiServiceServerRequest
         ];
     }
 
-    public function handleServiceRequest(
-        RegistrationInterface $registration,
-        ServerRequestInterface $request
+    public function handleValidatedServiceRequest(
+        RequestAccessTokenValidationResultInterface $validationResult,
+        ServerRequestInterface $request,
+        array $options = []
     ): ResponseInterface {
+        $registration = $validationResult->getRegistration();
         $basicOutcomeRequest = $this->basicOutcomeRequestSerializer->deserialize((string)$request->getBody());
 
         switch ($basicOutcomeRequest->getType()) {
