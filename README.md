@@ -47,11 +47,11 @@ You can find below the library documentation, presented by topics.
 
 ### Platform
 
-- how to [use the Basic Outcome library as a platform](doc/platform.md)
+- how to [use the basic outcome library as a platform](doc/platform.md)
 
 ### Tool
 
-- how to [use the Basic Outcome library as a tool](doc/tool.md)
+- how to [use the basic outcome library as a tool](doc/tool.md)
 
 ## Tests
 
