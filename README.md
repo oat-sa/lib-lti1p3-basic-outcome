@@ -45,13 +45,13 @@ You can find below the library documentation, presented by topics.
 
 - how to [configure the underlying LTI 1.3 Core library](https://github.com/oat-sa/lib-lti1p3-core#quick-start)
 
-### Tool
-
-- how to [use the Basic Outcome library as a tool](doc/tool.md)
-
 ### Platform
 
 - how to [use the Basic Outcome library as a platform](doc/platform.md)
+
+### Tool
+
+- how to [use the Basic Outcome library as a tool](doc/tool.md)
 
 ## Tests
 
