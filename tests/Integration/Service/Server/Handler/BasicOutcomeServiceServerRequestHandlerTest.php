@@ -127,7 +127,7 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             'POST',
             'http://platform.com/basic-outcome',
             [
-                'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+                'Content-Type' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
             ],
             $this->twig->render('request/readResultRequest.xml.twig', ['request' => $boRequest])
         );
@@ -195,7 +195,7 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             'POST',
             'http://platform.com/basic-outcome',
             [
-                'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+                'Content-Type' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
             ],
             $this->twig->render('request/replaceResultRequest.xml.twig', ['request' => $boRequest])
         );
@@ -257,7 +257,7 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             'POST',
             'http://platform.com/basic-outcome',
             [
-                'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+                'Content-Type' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
             ],
             $this->twig->render('request/deleteResultRequest.xml.twig', ['request' => $boRequest])
         );
@@ -305,7 +305,7 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             'POST',
             'http://platform.com/basic-outcome',
             [
-                'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+                'Content-Type' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
             ],
             $this->twig->render('request/invalidRequest.xml.twig', ['request' => $boRequest])
         );
@@ -341,7 +341,7 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             'POST',
             'http://platform.com/basic-outcome',
             [
-                'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+                'Content-Type' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
             ]
         );
 
@@ -373,7 +373,7 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             'GET',
             'http://platform.com/basic-outcome',
             [
-                'Accept' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+                'Content-Type' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
             ]
         );
 
@@ -403,7 +403,7 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             'POST',
             'http://platform.com/basic-outcome',
             [
-                'Accept' => 'invalid'
+                'Content-Type' => 'invalid'
             ]
         );
 
