@@ -34,6 +34,7 @@ use OAT\Library\Lti1p3BasicOutcome\Serializer\Response\BasicOutcomeResponseSeria
 use OAT\Library\Lti1p3BasicOutcome\Service\BasicOutcomeServiceInterface;
 use OAT\Library\Lti1p3Core\Exception\LtiException;
 use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
+use OAT\Library\Lti1p3Core\Message\Payload\Claim\BasicOutcomeClaim;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayloadInterface;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClient;
@@ -78,23 +79,41 @@ class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
         LtiMessagePayloadInterface $payload
     ): BasicOutcomeResponseInterface {
         try {
-            $basicOutcomeClaim = $payload->getBasicOutcome();
+            $claim = $payload->getBasicOutcome();
 
-            if (null === $basicOutcomeClaim) {
+            if (null === $claim) {
                 throw new InvalidArgumentException('Provided payload does not contain basic outcome claim');
             }
 
-            return $this->readResult(
-                $registration,
-                $basicOutcomeClaim->getLisOutcomeServiceUrl(),
-                $basicOutcomeClaim->getLisResultSourcedId()
-            );
+            return $this->readResultForClaim($registration, $claim);
 
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
-                sprintf('Read result error for payload: %s', $exception->getMessage()),
+                sprintf('Read result for payload error: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-bo/v1p1#readresult
+     * @throws LtiExceptionInterface
+     */
+    public function readResultForClaim(
+        RegistrationInterface $registration,
+        BasicOutcomeClaim $claim
+    ): BasicOutcomeResponseInterface {
+        try {
+            return $this->readResult(
+                $registration,
+                $claim->getLisOutcomeServiceUrl(),
+                $claim->getLisResultSourcedId()
+            );
+
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Read result for claim error: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );
@@ -142,25 +161,45 @@ class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
         string $language = 'en'
     ): BasicOutcomeResponseInterface {
         try {
-            $basicOutcomeClaim = $payload->getBasicOutcome();
+            $claim = $payload->getBasicOutcome();
 
-            if (null === $basicOutcomeClaim) {
+            if (null === $claim) {
                 throw new InvalidArgumentException('Provided payload does not contain basic outcome claim');
             }
 
+            return $this->replaceResultForClaim($registration, $claim, $score, $language);
+
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Replace result for payload error: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-bo/v1p1#replaceresult
+     * @throws LtiExceptionInterface
+     */
+    public function replaceResultForClaim(
+        RegistrationInterface $registration,
+        BasicOutcomeClaim $claim,
+        float $score,
+        string $language = 'en'
+    ): BasicOutcomeResponseInterface {
+        try {
             return $this->replaceResult(
                 $registration,
-                $basicOutcomeClaim->getLisOutcomeServiceUrl(),
-                $basicOutcomeClaim->getLisResultSourcedId(),
+                $claim->getLisOutcomeServiceUrl(),
+                $claim->getLisResultSourcedId(),
                 $score,
                 $language
             );
 
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
-                sprintf('Replace result error for payload: %s', $exception->getMessage()),
+                sprintf('Replace result for claim error: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );
@@ -214,23 +253,41 @@ class BasicOutcomeServiceClient implements BasicOutcomeServiceInterface
         LtiMessagePayloadInterface $payload
     ): BasicOutcomeResponseInterface {
         try {
-            $basicOutcomeClaim = $payload->getBasicOutcome();
+            $claim = $payload->getBasicOutcome();
 
-            if (null === $basicOutcomeClaim) {
+            if (null === $claim) {
                 throw new InvalidArgumentException('Provided payload does not contain basic outcome claim');
             }
 
-            return $this->deleteResult(
-                $registration,
-                $basicOutcomeClaim->getLisOutcomeServiceUrl(),
-                $basicOutcomeClaim->getLisResultSourcedId()
-            );
+            return $this->deleteResultForClaim($registration, $claim);
 
-        } catch (LtiExceptionInterface $exception) {
-            throw $exception;
         } catch (Throwable $exception) {
             throw new LtiException(
-                sprintf('Delete result error for payload: %s', $exception->getMessage()),
+                sprintf('Delete result for payload error: %s', $exception->getMessage()),
+                $exception->getCode(),
+                $exception
+            );
+        }
+    }
+
+    /**
+     * @see https://www.imsglobal.org/spec/lti-bo/v1p1#deleteresult
+     * @throws LtiExceptionInterface
+     */
+    public function deleteResultForClaim(
+        RegistrationInterface $registration,
+        BasicOutcomeClaim $claim
+    ): BasicOutcomeResponseInterface {
+        try {
+            return $this->deleteResult(
+                $registration,
+                $claim->getLisOutcomeServiceUrl(),
+                $claim->getLisResultSourcedId()
+            );
+
+        } catch (Throwable $exception) {
+            throw new LtiException(
+                sprintf('Delete result for claim error: %s', $exception->getMessage()),
                 $exception->getCode(),
                 $exception
             );
