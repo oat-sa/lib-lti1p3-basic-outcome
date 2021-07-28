@@ -34,6 +34,7 @@ use OAT\Library\Lti1p3Core\Exception\LtiExceptionInterface;
 use OAT\Library\Lti1p3Core\Message\Payload\Builder\MessagePayloadBuilder;
 use OAT\Library\Lti1p3Core\Message\Payload\Claim\BasicOutcomeClaim;
 use OAT\Library\Lti1p3Core\Message\Payload\LtiMessagePayload;
+use OAT\Library\Lti1p3Core\Message\Payload\MessagePayload;
 use OAT\Library\Lti1p3Core\Registration\RegistrationInterface;
 use OAT\Library\Lti1p3Core\Service\Client\LtiServiceClientInterface;
 use OAT\Library\Lti1p3Core\Tests\Traits\DomainTestingTrait;
@@ -127,7 +128,7 @@ class BasicOutcomeServiceClientTest extends TestCase
     public function testReadResultForPayloadFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Read result error for payload: Provided payload does not contain basic outcome claim');
+        $this->expectExceptionMessage('Read result for payload error: Provided payload does not contain basic outcome claim');
 
         $registration = $this->createTestRegistration();
 
@@ -157,6 +158,20 @@ class BasicOutcomeServiceClientTest extends TestCase
         $this->prepareClientMockForFailure();
 
         $this->subject->readResultForPayload($registration, $payload);
+    }
+
+    public function testReadResultForClaimClientFailure(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Read result for claim error: Read result error: Cannot send basic outcome: custom error');
+
+        $registration = $this->createTestRegistration();
+
+        $claim = new BasicOutcomeClaim('sourcedId', 'http://platform.com/basic-outcome');
+
+        $this->prepareClientMockForFailure();
+
+        $this->subject->readResultForClaim($registration, $claim);
     }
 
     public function testReadResultSuccess(): void
@@ -265,7 +280,7 @@ class BasicOutcomeServiceClientTest extends TestCase
     public function testReplaceResultForPayloadFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Replace result error for payload: Provided payload does not contain basic outcome claim');
+        $this->expectExceptionMessage('Replace result for payload error: Provided payload does not contain basic outcome claim');
 
         $registration = $this->createTestRegistration();
 
@@ -295,6 +310,20 @@ class BasicOutcomeServiceClientTest extends TestCase
         $this->prepareClientMockForFailure();
 
         $this->subject->replaceResultForPayload($registration, $payload, 0.42, 'en');
+    }
+
+    public function testReplaceResultForClaimClientFailure(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Replace result for claim error: Replace result error: Cannot send basic outcome: custom error');
+
+        $registration = $this->createTestRegistration();
+
+        $claim = new BasicOutcomeClaim('sourcedId', 'http://platform.com/basic-outcome');
+
+        $this->prepareClientMockForFailure();
+
+        $this->subject->replaceResultForClaim($registration, $claim, 0.42, 'en');
     }
 
     public function testReplaceResultSuccess(): void
@@ -407,7 +436,7 @@ class BasicOutcomeServiceClientTest extends TestCase
     public function testDeleteResultForPayloadFailure(): void
     {
         $this->expectException(LtiExceptionInterface::class);
-        $this->expectExceptionMessage('Delete result error for payload: Provided payload does not contain basic outcome claim');
+        $this->expectExceptionMessage('Delete result for payload error: Provided payload does not contain basic outcome claim');
 
         $registration = $this->createTestRegistration();
 
@@ -437,6 +466,20 @@ class BasicOutcomeServiceClientTest extends TestCase
         $this->prepareClientMockForFailure();
 
         $this->subject->deleteResultForPayload($registration, $payload);
+    }
+
+    public function testDeleteResultForClaimClientFailure(): void
+    {
+        $this->expectException(LtiExceptionInterface::class);
+        $this->expectExceptionMessage('Delete result for claim error: Delete result error: Cannot send basic outcome: custom error');
+
+        $registration = $this->createTestRegistration();
+
+        $claim = new BasicOutcomeClaim('sourcedId', 'http://platform.com/basic-outcome');
+
+        $this->prepareClientMockForFailure();
+
+        $this->subject->deleteResultForClaim($registration, $claim);
     }
 
     public function testDeleteResultSuccess(): void
