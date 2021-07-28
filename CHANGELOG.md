@@ -4,7 +4,7 @@ CHANGELOG
 4.1.0
 -----
 
-* Added methods to BasicOutcomeServiceClient to work with claims
+* Added methods to BasicOutcomeServiceClient to work with claim
 * Updated documentation
 
 4.0.0
