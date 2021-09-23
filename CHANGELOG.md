@@ -1,6 +1,11 @@
 CHANGELOG
 =========
 
+4.1.1
+-----
+
+* Fixed wrong response http status code to return a bad request when the provided operation xml is invalid
+
 4.1.0
 -----
 

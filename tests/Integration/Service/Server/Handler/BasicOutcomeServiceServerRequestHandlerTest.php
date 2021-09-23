@@ -83,7 +83,9 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             $this->processorMock,
             null,
             null,
-            new BasicOutcomeResponseFactory($this->generatorMock)
+            new BasicOutcomeResponseFactory($this->generatorMock),
+            null,
+            $this->logger
         );
 
         $this->server = new LtiServiceServer(
@@ -431,6 +433,46 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             $this->logger->hasLog(
                 'error',
                 'Not acceptable request content type, accepts: application/vnd.ims.lti.v1.outcome+xml'
+            )
+        );
+    }
+
+    public function testHandlingFailureOnInvalidRequestXml(): void
+    {
+        $registration = $this->createTestRegistration();
+        $validationResult = new RequestAccessTokenValidationResult($registration);
+
+        $request = new ServerRequest(
+            'POST',
+            'http://platform.com/basic-outcome',
+            [
+                'Content-Type' => BasicOutcomeServiceInterface::CONTENT_TYPE_BASIC_OUTCOME
+            ],
+            'invalid'
+        );
+
+        $this->validatorMock
+            ->expects($this->once())
+            ->method('validate')
+            ->with($request)
+            ->willReturn($validationResult);
+
+        $this->generatorMock
+            ->expects($this->never())
+            ->method('generate');
+
+        $response = $this->server->handle($request);
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertEquals(
+            'Cannot deserialize basic outcome request: The current node list is empty.',
+            (string)$response->getBody()
+        );
+
+        $this->assertTrue(
+            $this->logger->hasLog(
+                'error',
+                'Cannot deserialize basic outcome request: The current node list is empty.'
             )
         );
     }
