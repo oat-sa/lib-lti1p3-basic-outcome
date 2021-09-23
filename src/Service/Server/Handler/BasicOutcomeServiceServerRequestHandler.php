@@ -38,6 +38,9 @@ use OAT\Library\Lti1p3Core\Security\OAuth2\Validator\Result\RequestAccessTokenVa
 use OAT\Library\Lti1p3Core\Service\Server\Handler\LtiServiceServerRequestHandlerInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
+use Throwable;
 
 class BasicOutcomeServiceServerRequestHandler implements LtiServiceServerRequestHandlerInterface, BasicOutcomeServiceInterface
 {
@@ -56,18 +59,23 @@ class BasicOutcomeServiceServerRequestHandler implements LtiServiceServerRequest
     /** @var ResponseFactory */
     private $httpResponseFactory;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     public function __construct(
         BasicOutcomeServiceServerProcessorInterface $processor,
         ?BasicOutcomeRequestSerializerInterface $basicOutcomeRequestSerializer = null,
         ?BasicOutcomeResponseSerializerInterface $basicOutcomeResponseSerializer = null,
         ?BasicOutcomeResponseFactoryInterface $basicOutcomeResponseFactory = null,
-        ?ResponseFactory $httpResponseFactory = null
+        ?ResponseFactory $httpResponseFactory = null,
+        ?LoggerInterface $logger = null
     ) {
         $this->processor = $processor;
         $this->basicOutcomeRequestSerializer = $basicOutcomeRequestSerializer ?? new BasicOutcomeRequestSerializer();
         $this->basicOutcomeResponseSerializer = $basicOutcomeResponseSerializer ?? new BasicOutcomeResponseSerializer();
         $this->basicOutcomeResponseFactory = $basicOutcomeResponseFactory ?? new BasicOutcomeResponseFactory();
         $this->httpResponseFactory = $httpResponseFactory ?? new HttplugFactory();
+        $this->logger = $logger ?? new NullLogger();
     }
 
     public function getServiceName(): string
@@ -100,7 +108,14 @@ class BasicOutcomeServiceServerRequestHandler implements LtiServiceServerRequest
         array $options = []
     ): ResponseInterface {
         $registration = $validationResult->getRegistration();
-        $basicOutcomeRequest = $this->basicOutcomeRequestSerializer->deserialize((string)$request->getBody());
+
+        try {
+            $basicOutcomeRequest = $this->basicOutcomeRequestSerializer->deserialize((string)$request->getBody());
+        } catch (Throwable $exception) {
+            $this->logger->error($exception->getMessage());
+
+            return $this->httpResponseFactory->createResponse(400, null, [], $exception->getMessage());
+        }
 
         switch ($basicOutcomeRequest->getType()) {
             case BasicOutcomeMessageInterface::TYPE_REPLACE_RESULT:
