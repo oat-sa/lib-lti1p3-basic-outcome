@@ -22,9 +22,8 @@ declare(strict_types=1);
 
 namespace OAT\Library\Lti1p3BasicOutcome\Service\Server\Handler;
 
-use Http\Message\ResponseFactory;
 use InvalidArgumentException;
-use Nyholm\Psr7\Factory\HttplugFactory;
+use Nyholm\Psr7\Response;
 use OAT\Library\Lti1p3BasicOutcome\Factory\Response\BasicOutcomeResponseFactory;
 use OAT\Library\Lti1p3BasicOutcome\Factory\Response\BasicOutcomeResponseFactoryInterface;
 use OAT\Library\Lti1p3BasicOutcome\Message\BasicOutcomeMessageInterface;
@@ -56,9 +55,6 @@ class BasicOutcomeServiceServerRequestHandler implements LtiServiceServerRequest
     /** @var BasicOutcomeResponseFactoryInterface */
     private $basicOutcomeResponseFactory;
 
-    /** @var ResponseFactory */
-    private $httpResponseFactory;
-
     /** @var LoggerInterface */
     private $logger;
 
@@ -67,14 +63,12 @@ class BasicOutcomeServiceServerRequestHandler implements LtiServiceServerRequest
         ?BasicOutcomeRequestSerializerInterface $basicOutcomeRequestSerializer = null,
         ?BasicOutcomeResponseSerializerInterface $basicOutcomeResponseSerializer = null,
         ?BasicOutcomeResponseFactoryInterface $basicOutcomeResponseFactory = null,
-        ?ResponseFactory $httpResponseFactory = null,
         ?LoggerInterface $logger = null
     ) {
         $this->processor = $processor;
         $this->basicOutcomeRequestSerializer = $basicOutcomeRequestSerializer ?? new BasicOutcomeRequestSerializer();
         $this->basicOutcomeResponseSerializer = $basicOutcomeResponseSerializer ?? new BasicOutcomeResponseSerializer();
         $this->basicOutcomeResponseFactory = $basicOutcomeResponseFactory ?? new BasicOutcomeResponseFactory();
-        $this->httpResponseFactory = $httpResponseFactory ?? new HttplugFactory();
         $this->logger = $logger ?? new NullLogger();
     }
 
@@ -114,7 +108,7 @@ class BasicOutcomeServiceServerRequestHandler implements LtiServiceServerRequest
         } catch (Throwable $exception) {
             $this->logger->error($exception->getMessage());
 
-            return $this->httpResponseFactory->createResponse(400, null, [], $exception->getMessage());
+            return new Response(400, [], $exception->getMessage());
         }
 
         switch ($basicOutcomeRequest->getType()) {
@@ -156,9 +150,8 @@ class BasicOutcomeServiceServerRequestHandler implements LtiServiceServerRequest
 
         $responseBody = $this->basicOutcomeResponseSerializer->serialize($basicOutcomeResponse);
 
-        return $this->httpResponseFactory->createResponse(
+        return new Response(
             200,
-            null,
             [
                 'Content-Type' => static::CONTENT_TYPE_BASIC_OUTCOME,
                 'Content-Length' => strlen($responseBody),

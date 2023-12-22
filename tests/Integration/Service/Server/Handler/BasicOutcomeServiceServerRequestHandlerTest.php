@@ -84,14 +84,12 @@ class BasicOutcomeServiceServerRequestHandlerTest extends TestCase
             null,
             null,
             new BasicOutcomeResponseFactory($this->generatorMock),
-            null,
             $this->logger
         );
 
         $this->server = new LtiServiceServer(
             $this->validatorMock,
             $subject,
-            null,
             $this->logger
         );
     }
